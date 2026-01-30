@@ -10,5 +10,3 @@ plotly
 pip
 lvm_tools
 matplotdrip
-jupyter-marimo-proxy
-astropy

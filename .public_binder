@@ -1,0 +1,29 @@
+provider: gh
+spec: andycasey/sdss-binder2/main
+
+mounts:
+  lvm: /mnt/home/sdssv/ceph/work/lvm/
+  mwm: /mnt/home/sdssv/ceph/work/scifest/
+  release: /mnt/home/sdssv/ceph/release/
+  data/dr19: /mnt/home/sdssv/ceph/release/dr19/
+  data/dr17: /mnt/home/sdssv/ceph/release/dr17/
+
+users:
+ - acasey@flatironinstitute.org
+ - andrew.casey@monash.edu
+ - aprice-whelan@flatironinstitute.org
+ - kevin.mckinnon@utoronto.ca
+ - kevinmckinnon95@gmail.com
+ - ccouto@carnegiescience.edu
+ - u1363702@utah.edu
+ - stonemaa@nmsu.edu
+ - astrostonemaa@gmail.com
+ - ilija.medan@gmail.com
+ - joleen.k.carlberg@gmail.com
+ - epinetti@flatironinstitute.org
+ - connor.hainje@nyu.edu
+ - jak@carnegiescience.edu
+ - Thomas.Hilder@monash.edu
+ - david.hogg@nyu.edu
+ - dhogg@flatironinstitute.org
+ - dwhogg@gmail.com
