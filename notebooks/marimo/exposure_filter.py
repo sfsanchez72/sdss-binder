@@ -35,15 +35,14 @@ def _():
     import numpy as np
     import pandas as pd
     from pathlib import Path
-    import os
     from sdss_semaphore.targeting import TargetingFlags
-    return Path, TargetingFlags, h5, np, os, pd
+    return Path, TargetingFlags, h5, np, pd
 
 
 @app.cell
-def _(Path, os):
+def _(Path):
     # Configuration
-    DATA_DIR = Path(os.environ.get("DATA_DIR", os.path.expanduser("~/../sdssv/ceph/work/scifest/0.2.0")))
+    DATA_DIR = Path("data/work/mwm/0.2.0")
     EXPOSURES_FILE = DATA_DIR / "exposures.h5"
     return DATA_DIR, EXPOSURES_FILE
 
