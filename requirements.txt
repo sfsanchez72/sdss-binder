@@ -12,3 +12,4 @@ lvm_tools
 matplotdrip
 sdss-semaphore
 pyarrow
+tqdm
