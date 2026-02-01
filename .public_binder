@@ -6,6 +6,8 @@ mounts:
   data/work/mwm: /mnt/home/sdssv/ceph/work/scifest/
   data/release: /mnt/home/sdssv/ceph/release/
 
+mem: 100G
+
 users:
  - acasey@flatironinstitute.org
  - andrew.casey@monash.edu
