@@ -148,7 +148,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo, sources_json, selected_source_input):
     # Create the Aladin Lite viewer with click handler
-    # The click handler updates a hidden input to trigger Python reactivity
+    # Bidirectional: click updates input, input change pans map
     
     input_id = selected_source_input._id if hasattr(selected_source_input, '_id') else 'source-selector'
     
@@ -177,7 +177,16 @@ def _(mo, sources_json, selected_source_input):
                 showFrame: true
             }});
             
+            // Store aladin instance globally for input handler
+            window.sdssAladin = aladin;
+            
             let sourceData = {sources_json};
+            
+            // Build lookup map: sdss_id -> {{ra, dec}}
+            window.sdssSourceLookup = {{}};
+            sourceData.forEach(s => {{
+                window.sdssSourceLookup[s.sdss_id] = {{ra: s.ra, dec: s.dec}};
+            }});
             
             let catalog = A.catalog({{
                 name: 'SDSS-V Sources',
@@ -197,15 +206,16 @@ def _(mo, sources_json, selected_source_input):
             catalog.addSources(sources);
             aladin.addCatalog(catalog);
             
-            // Handle source clicks - dispatch custom event
+            // Track if we're updating from a click (to avoid feedback loop)
+            window.sdssClickUpdating = false;
+            
+            // Handle source clicks
             aladin.on('objectClicked', function(object) {{
                 if (object && object.data && object.data.sdss_id) {{
                     let sdssId = object.data.sdss_id;
-                    // Dispatch a custom event that marimo can catch
-                    window.dispatchEvent(new CustomEvent('sdss-source-selected', {{
-                        detail: {{ sdss_id: sdssId }}
-                    }}));
-                    // Also try to update any input with the right pattern
+                    window.sdssClickUpdating = true;
+                    
+                    // Update marimo text input
                     document.querySelectorAll('input[type="text"]').forEach(input => {{
                         if (input.closest('.marimo-ui-text')) {{
                             input.value = String(sdssId);
@@ -213,7 +223,49 @@ def _(mo, sources_json, selected_source_input):
                             input.dispatchEvent(new Event('change', {{ bubbles: true }}));
                         }}
                     }});
+                    
+                    setTimeout(() => {{ window.sdssClickUpdating = false; }}, 100);
                 }}
+            }});
+            
+            // Watch for manual input changes and pan to source
+            function setupInputWatcher() {{
+                document.querySelectorAll('input[type="text"]').forEach(input => {{
+                    if (input.closest('.marimo-ui-text') && !input.dataset.sdssWatching) {{
+                        input.dataset.sdssWatching = 'true';
+                        
+                        input.addEventListener('change', function(e) {{
+                            if (window.sdssClickUpdating) return;
+                            
+                            let sdssId = parseInt(input.value.trim());
+                            if (!isNaN(sdssId) && window.sdssSourceLookup[sdssId]) {{
+                                let coords = window.sdssSourceLookup[sdssId];
+                                window.sdssAladin.gotoRaDec(coords.ra, coords.dec);
+                                window.sdssAladin.setFoV(2);  // Zoom to 2 degree FOV
+                            }}
+                        }});
+                        
+                        // Also handle Enter key
+                        input.addEventListener('keydown', function(e) {{
+                            if (e.key === 'Enter') {{
+                                if (window.sdssClickUpdating) return;
+                                
+                                let sdssId = parseInt(input.value.trim());
+                                if (!isNaN(sdssId) && window.sdssSourceLookup[sdssId]) {{
+                                    let coords = window.sdssSourceLookup[sdssId];
+                                    window.sdssAladin.gotoRaDec(coords.ra, coords.dec);
+                                    window.sdssAladin.setFoV(2);
+                                }}
+                            }}
+                        }});
+                    }}
+                }});
+            }}
+            
+            // Setup watcher initially and on DOM changes
+            setupInputWatcher();
+            new MutationObserver(setupInputWatcher).observe(document.body, {{
+                childList: true, subtree: true
             }});
             
             aladin.gotoRaDec(266.417, -29.008);
@@ -232,7 +284,7 @@ def _(mo, selected_source_input):
     mo.hstack([
         mo.md("**Enter SDSS ID:**"),
         selected_source_input,
-        mo.md("_(or click a point on the map)_")
+        mo.md("_(press Enter to pan & zoom, or click a point on the map)_")
     ], justify="start", gap=1)
     return
 
@@ -250,6 +302,19 @@ def _(mo, selected_source_input):
     if selected_sdss_id is None:
         mo.md("_Click on a source in the map above or enter an SDSS ID to see details._")
     return (selected_sdss_id,)
+
+
+@app.cell(hide_code=True)
+def _(mo, n_sources):
+    # Note about subsampling
+    MAX_POINTS = 100000
+    if n_sources > MAX_POINTS:
+        mo.md(f"""
+        > **Note:** The map shows a random subset of {MAX_POINTS:,} sources for browser performance. 
+        > If you enter an SDSS ID that isn't in the displayed subset, the map won't pan to it, 
+        > but the details will still load below.
+        """)
+    return
 
 
 @app.cell(hide_code=True)
