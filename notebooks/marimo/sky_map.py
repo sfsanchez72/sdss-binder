@@ -307,10 +307,10 @@ def _(mo, selected_source_input):
 @app.cell(hide_code=True)
 def _(mo, n_sources):
     # Note about subsampling
-    MAX_POINTS = 100000
-    if n_sources > MAX_POINTS:
+    _max_pts = 100000
+    if n_sources > _max_pts:
         mo.md(f"""
-        > **Note:** The map shows a random subset of {MAX_POINTS:,} sources for browser performance. 
+        > **Note:** The map shows a random subset of {_max_pts:,} sources for browser performance. 
         > If you enter an SDSS ID that isn't in the displayed subset, the map won't pan to it, 
         > but the details will still load below.
         """)
@@ -368,11 +368,9 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo, n_exposures, selected_sdss_id, source_data):
-    # Display source summary
-    mo.stop(selected_sdss_id is None)
-    
-    def fmt(val, decimals=4):
+def _():
+    # Format helper function (defined once, used by multiple cells)
+    def format_value(val, decimals=4):
         if val is None:
             return "—"
         if isinstance(val, float):
@@ -380,30 +378,37 @@ def _(mo, n_exposures, selected_sdss_id, source_data):
                 return f"{val:.0f}"
             return f"{val:.{decimals}f}"
         return str(val)
+    return (format_value,)
+
+
+@app.cell(hide_code=True)
+def _(mo, n_exposures, selected_sdss_id, source_data):
+    # Display source summary
+    mo.stop(selected_sdss_id is None)
     
-    ra = source_data.get('gaia_ra')
-    dec = source_data.get('gaia_dec')
+    _ra = source_data.get('gaia_ra')
+    _dec = source_data.get('gaia_dec')
     
     # External links
-    links = []
-    if ra is not None and dec is not None:
-        links.append(f"[SIMBAD](https://simbad.cds.unistra.fr/simbad/sim-coo?Coord={ra}+{dec}&Radius=2&Radius.unit=arcsec)")
-        links.append(f"[VizieR](https://vizier.cds.unistra.fr/viz-bin/VizieR-4?-c={ra}+{dec}&-c.rs=2)")
+    _links = []
+    if _ra is not None and _dec is not None:
+        _links.append(f"[SIMBAD](https://simbad.cds.unistra.fr/simbad/sim-coo?Coord={_ra}+{_dec}&Radius=2&Radius.unit=arcsec)")
+        _links.append(f"[VizieR](https://vizier.cds.unistra.fr/viz-bin/VizieR-4?-c={_ra}+{_dec}&-c.rs=2)")
     
-    links_str = " · ".join(links) if links else ""
+    _links_str = " · ".join(_links) if _links else ""
     
     mo.md(f"""
     ---
     
     ## Source: SDSS ID {selected_sdss_id}
     
-    **{n_exposures} exposure{'s' if n_exposures != 1 else ''}** · {links_str}
+    **{n_exposures} exposure{'s' if n_exposures != 1 else ''}** · {_links_str}
     """)
-    return (fmt,)
+    return
 
 
 @app.cell(hide_code=True)
-def _(fmt, mo, selected_sdss_id, source_data):
+def _(mo, selected_sdss_id, source_data):
     # Identifiers table
     mo.stop(selected_sdss_id is None)
     
@@ -422,7 +427,7 @@ def _(fmt, mo, selected_sdss_id, source_data):
 
 
 @app.cell(hide_code=True)
-def _(fmt, mo, selected_sdss_id, source_data):
+def _(format_value, mo, selected_sdss_id, source_data):
     # Astrometry and photometry
     mo.stop(selected_sdss_id is None)
     
@@ -431,18 +436,18 @@ def _(fmt, mo, selected_sdss_id, source_data):
     
     | Property | Value | Property | Value |
     |----------|-------|----------|-------|
-    | **RA** | {fmt(source_data.get('gaia_ra'), 6)}° | **Dec** | {fmt(source_data.get('gaia_dec'), 6)}° |
-    | **Parallax** | {fmt(source_data.get('gaia_parallax'), 3)} ± {fmt(source_data.get('gaia_parallax_error'), 3)} mas | **Distance** | {fmt(source_data.get('gaia_distance_gspphot'), 1)} pc |
-    | **PM RA** | {fmt(source_data.get('gaia_pmra'), 3)} ± {fmt(source_data.get('gaia_pmra_error'), 3)} mas/yr | **PM Dec** | {fmt(source_data.get('gaia_pmdec'), 3)} ± {fmt(source_data.get('gaia_pmdec_error'), 3)} mas/yr |
-    | **G** | {fmt(source_data.get('gaia_phot_g_mean_mag'), 3)} mag | **BP** | {fmt(source_data.get('gaia_phot_bp_mean_mag'), 3)} mag |
-    | **RP** | {fmt(source_data.get('gaia_phot_rp_mean_mag'), 3)} mag | **J** | {fmt(source_data.get('twomass_j_m'), 3)} mag |
-    | **H** | {fmt(source_data.get('twomass_h_m'), 3)} mag | **K** | {fmt(source_data.get('twomass_k_m'), 3)} mag |
+    | **RA** | {format_value(source_data.get('gaia_ra'), 6)}° | **Dec** | {format_value(source_data.get('gaia_dec'), 6)}° |
+    | **Parallax** | {format_value(source_data.get('gaia_parallax'), 3)} ± {format_value(source_data.get('gaia_parallax_error'), 3)} mas | **Distance** | {format_value(source_data.get('gaia_distance_gspphot'), 1)} pc |
+    | **PM RA** | {format_value(source_data.get('gaia_pmra'), 3)} ± {format_value(source_data.get('gaia_pmra_error'), 3)} mas/yr | **PM Dec** | {format_value(source_data.get('gaia_pmdec'), 3)} ± {format_value(source_data.get('gaia_pmdec_error'), 3)} mas/yr |
+    | **G** | {format_value(source_data.get('gaia_phot_g_mean_mag'), 3)} mag | **BP** | {format_value(source_data.get('gaia_phot_bp_mean_mag'), 3)} mag |
+    | **RP** | {format_value(source_data.get('gaia_phot_rp_mean_mag'), 3)} mag | **J** | {format_value(source_data.get('twomass_j_m'), 3)} mag |
+    | **H** | {format_value(source_data.get('twomass_h_m'), 3)} mag | **K** | {format_value(source_data.get('twomass_k_m'), 3)} mag |
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(fmt, mo, selected_sdss_id, source_data):
+def _(format_value, mo, selected_sdss_id, source_data):
     # Stellar parameters
     mo.stop(selected_sdss_id is None)
     
@@ -451,23 +456,23 @@ def _(fmt, mo, selected_sdss_id, source_data):
     
     | Parameter | Value | Parameter | Value |
     |-----------|-------|-----------|-------|
-    | **Teff** | {fmt(source_data.get('gaia_teff_gspphot'), 0)} K | **log g** | {fmt(source_data.get('gaia_logg_gspphot'), 2)} |
-    | **[M/H]** | {fmt(source_data.get('gaia_mh_gspphot'), 2)} | **RV (Gaia)** | {fmt(source_data.get('gaia_radial_velocity'), 2)} ± {fmt(source_data.get('gaia_radial_velocity_error'), 2)} km/s |
+    | **Teff** | {format_value(source_data.get('gaia_teff_gspphot'), 0)} K | **log g** | {format_value(source_data.get('gaia_logg_gspphot'), 2)} |
+    | **[M/H]** | {format_value(source_data.get('gaia_mh_gspphot'), 2)} | **RV (Gaia)** | {format_value(source_data.get('gaia_radial_velocity'), 2)} ± {format_value(source_data.get('gaia_radial_velocity_error'), 2)} km/s |
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(exposure_data, mo, np, pd, selected_sdss_id):
+def _(exposure_data, mo, np, selected_sdss_id):
     # Exposure table
     mo.stop(selected_sdss_id is None)
     
     import pandas as _pd
     
     # Build exposure DataFrame
-    exp_df_data = {'#': list(range(1, len(exposure_data.get('mjd', [])) + 1))}
+    _exp_df_data = {'#': list(range(1, len(exposure_data.get('mjd', [])) + 1))}
     
-    field_labels = {
+    _field_labels = {
         'mjd': 'MJD',
         'observatory': 'Obs',
         'exposure': 'Exposure',
@@ -476,21 +481,21 @@ def _(exposure_data, mo, np, pd, selected_sdss_id):
         'e_v_rad': 'σ_v_rad'
     }
     
-    for field, label in field_labels.items():
-        if field in exposure_data:
-            vals = exposure_data[field]
-            if hasattr(vals, 'tolist'):
-                vals = vals.tolist()
+    for _field, _label in _field_labels.items():
+        if _field in exposure_data:
+            _vals = exposure_data[_field]
+            if hasattr(_vals, 'tolist'):
+                _vals = _vals.tolist()
             # Round floats
-            if len(vals) > 0 and isinstance(vals[0], (float, np.floating)):
-                vals = [round(v, 2) if np.isfinite(v) else None for v in vals]
-            exp_df_data[label] = vals
+            if len(_vals) > 0 and isinstance(_vals[0], (float, np.floating)):
+                _vals = [round(v, 2) if np.isfinite(v) else None for v in _vals]
+            _exp_df_data[_label] = _vals
     
-    exp_df = _pd.DataFrame(exp_df_data)
+    _exp_df = _pd.DataFrame(_exp_df_data)
     
     mo.vstack([
         mo.md("### Exposures"),
-        mo.ui.table(exp_df, selection=None, pagination=True, page_size=10)
+        mo.ui.table(_exp_df, selection=None, pagination=True, page_size=10)
     ])
     return
 
