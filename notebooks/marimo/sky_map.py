@@ -10,7 +10,7 @@ app = marimo.App(width="full", app_title="SDSS-V Sky Map")
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
+    return mo.md(
         """
         # SDSS-V Sky Coverage Map
 
@@ -21,19 +21,16 @@ def _(mo):
         - **Click on a point** to see detailed source information below
         """
     )
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo, n_sources, n_total_exposures):
-    mo.md(f"**Loaded:** {n_sources:,} unique sources from {n_total_exposures:,} total exposures")
-    return
+    return mo.md(f"**Loaded:** {n_sources:,} unique sources from {n_total_exposures:,} total exposures")
 
 
 @app.cell(hide_code=True)
 def _(display_note, mo):
-    mo.md(f"_{display_note}_")
-    return
+    return mo.md(f"_{display_note}_")
 
 
 @app.cell(hide_code=True)
@@ -145,18 +142,16 @@ def _(mo, sources_json):
     }})();
     </script>
     """
-    mo.Html(_aladin_html)
-    return
+    return mo.Html(_aladin_html)
 
 
 @app.cell(hide_code=True)
 def _(mo, selected_source_input):
-    mo.hstack([
+    return mo.hstack([
         mo.md("**Enter SDSS ID:**"),
         selected_source_input,
         mo.md("_(press Enter to pan & zoom, or click a point on the map)_")
     ], justify="start", gap=1)
-    return
 
 
 @app.cell(hide_code=True)
@@ -164,20 +159,18 @@ def _(mo, n_sources):
     # Note about subsampling (only shown if subsampled)
     _max_pts = 100000
     if n_sources > _max_pts:
-        mo.md(f"""
+        return mo.md(f"""
         > **Note:** The map shows a random subset of {_max_pts:,} sources for browser performance. 
         > If you enter an SDSS ID that isn't in the displayed subset, the map won't pan to it, 
         > but the details will still load below.
         """)
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo, selected_sdss_id):
     # Prompt to select a source
     if selected_sdss_id is None:
-        mo.md("_Click on a source in the map above or enter an SDSS ID to see details._")
-    return
+        return mo.md("_Click on a source in the map above or enter an SDSS ID to see details._")
 
 
 @app.cell(hide_code=True)
@@ -193,14 +186,13 @@ def _(mo, n_exposures, selected_sdss_id, source_data):
         _links.append(f"[VizieR](https://vizier.cds.unistra.fr/viz-bin/VizieR-4?-c={_ra}+{_dec}&-c.rs=2)")
     _links_str = " · ".join(_links) if _links else ""
     
-    mo.md(f"""
+    return mo.md(f"""
     ---
     
     ## Source: SDSS ID {selected_sdss_id}
     
     **{n_exposures} exposure{'s' if n_exposures != 1 else ''}** · {_links_str}
     """)
-    return
 
 
 @app.cell(hide_code=True)
@@ -208,7 +200,7 @@ def _(mo, selected_sdss_id, source_data):
     # Identifiers table
     mo.stop(selected_sdss_id is None)
     
-    mo.md(f"""
+    return mo.md(f"""
     ### Identifiers
     
     | Field | Value |
@@ -219,7 +211,6 @@ def _(mo, selected_sdss_id, source_data):
     | **TIC v8** | {source_data.get('tic_v8', '—')} |
     | **2MASS** | {source_data.get('twomass_designation', '—')} |
     """)
-    return
 
 
 @app.cell(hide_code=True)
@@ -227,7 +218,7 @@ def _(format_value, mo, selected_sdss_id, source_data):
     # Astrometry and photometry
     mo.stop(selected_sdss_id is None)
     
-    mo.md(f"""
+    return mo.md(f"""
     ### Astrometry & Photometry
     
     | Property | Value | Property | Value |
@@ -239,7 +230,6 @@ def _(format_value, mo, selected_sdss_id, source_data):
     | **RP** | {format_value(source_data.get('gaia_phot_rp_mean_mag'), 3)} mag | **J** | {format_value(source_data.get('twomass_j_m'), 3)} mag |
     | **H** | {format_value(source_data.get('twomass_h_m'), 3)} mag | **K** | {format_value(source_data.get('twomass_k_m'), 3)} mag |
     """)
-    return
 
 
 @app.cell(hide_code=True)
@@ -247,7 +237,7 @@ def _(format_value, mo, selected_sdss_id, source_data):
     # Stellar parameters
     mo.stop(selected_sdss_id is None)
     
-    mo.md(f"""
+    return mo.md(f"""
     ### Stellar Parameters (Gaia GSP-Phot)
     
     | Parameter | Value | Parameter | Value |
@@ -255,7 +245,6 @@ def _(format_value, mo, selected_sdss_id, source_data):
     | **Teff** | {format_value(source_data.get('gaia_teff_gspphot'), 0)} K | **log g** | {format_value(source_data.get('gaia_logg_gspphot'), 2)} |
     | **[M/H]** | {format_value(source_data.get('gaia_mh_gspphot'), 2)} | **RV (Gaia)** | {format_value(source_data.get('gaia_radial_velocity'), 2)} ± {format_value(source_data.get('gaia_radial_velocity_error'), 2)} km/s |
     """)
-    return
 
 
 @app.cell(hide_code=True)
@@ -280,16 +269,15 @@ def _(exposure_data, mo, np, selected_sdss_id):
                 _vals = [round(v, 2) if np.isfinite(v) else None for v in _vals]
             _exp_df_data[_label] = _vals
     
-    mo.vstack([
+    return mo.vstack([
         mo.md("### Exposures"),
         mo.ui.table(_pd.DataFrame(_exp_df_data), selection=None, pagination=True, page_size=10)
     ])
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
+    return mo.md(
         """
         ---
         
@@ -305,7 +293,6 @@ def _(mo):
         | **Full screen** | Fullscreen button |
         """
     )
-    return
 
 
 # =============================================================================
