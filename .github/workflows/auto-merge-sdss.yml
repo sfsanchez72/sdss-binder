@@ -19,7 +19,8 @@ jobs:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           # Check if the PR author is a member of the sdss organization
-          if gh api /orgs/sdss/members/$PR_AUTHOR --silent 2>/dev/null; then
+          status=$(gh api orgs/sdss/members/$PR_AUTHOR --silent -i 2>/dev/null | head -1 | awk '{print $2}')
+          if [ "$status" = "204" ];
             echo "is_member=true" >> $GITHUB_OUTPUT
             echo "✅ $PR_AUTHOR is a member of the sdss organization"
           else
