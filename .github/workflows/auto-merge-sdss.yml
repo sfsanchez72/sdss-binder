@@ -12,20 +12,21 @@ jobs:
       contents: write
 
     steps:
-      - name: Check if author is SDSS organization member
+      - name: Check if author is SDSS contributor
         id: check_member
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
-          # Check if the PR author is a member of the sdss organization
-          status=$(gh api orgs/sdss/members/$PR_AUTHOR --silent -i 2>/dev/null | head -1 | awk '{print $2}')
-          if [ "$status" = "204" ]; then
+          # Check if the PR author has commits in any sdss organization repo
+          # (org membership API is restricted, so we check contribution history)
+          commit_count=$(gh api search/commits -X GET -f q="author:$PR_AUTHOR org:sdss" --jq '.total_count' 2>/dev/null || echo "0")
+          if [ "$commit_count" -gt "0" ]; then
             echo "is_member=true" >> $GITHUB_OUTPUT
-            echo "✅ $PR_AUTHOR is a member of the sdss organization"
+            echo "✅ $PR_AUTHOR has $commit_count commits in sdss repositories"
           else
             echo "is_member=false" >> $GITHUB_OUTPUT
-            echo "❌ $PR_AUTHOR is not a member of the sdss organization"
+            echo "❌ $PR_AUTHOR has no commits in sdss repositories"
           fi
 
       - name: Auto-merge PR
@@ -45,4 +46,4 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          gh pr comment $PR_NUMBER --repo $REPO --body "🤖 Auto-merge enabled for SDSS organization member. PR will merge automatically when all checks pass."
+          gh pr comment $PR_NUMBER --repo $REPO --body "🤖 Auto-merge enabled for SDSS contributor. PR will merge automatically when all checks pass."
