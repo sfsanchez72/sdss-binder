@@ -5,7 +5,7 @@ mounts:
   data/work/lvm: /mnt/home/sdssv/ceph/work/lvm/
   data/work/mwm: /mnt/home/sdssv/ceph/work/scifest/
   data/release: /mnt/home/sdssv/ceph/release/
-  data/raw: /mnt/home/sdssv/ceph/raw/
+  #data/raw: /mnt/home/sdssv/ceph/raw/
 
 mem: 100G
 
