@@ -12,7 +12,7 @@ mem: 100G
 
 users:
  - acasey@flatironinstitute.org
- - andrew.casey@monash.edu # andrew casey
+ - andrew.casey@monash.edu
  - aprice-whelan@flatironinstitute.org
  - kevin.mckinnon@utoronto.ca
  - kevinmckinnon95@gmail.com
@@ -43,5 +43,5 @@ users:
  - sharifikayvon@gmail.com
  - knd8618@nyu.edu
  - u1363702@gcloud.utah.edu
- - keejos@gmail.com # kathryn kreckel
- - natascha0sattler@gmail.com # kathryn kreckel student
+ - keejos@gmail.com
+ - natascha0sattler@gmail.com
