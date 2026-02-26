@@ -1,0 +1,42 @@
+name: Sync branches from main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync rusty and popeye from main
+        run: |
+          # Save main's .public_binder before switching branches
+          cp .public_binder /tmp/main_public_binder.yml
+
+          for branch in rusty popeye; do
+            git checkout $branch
+
+            # Sync notebooks/ and requirements.txt from main
+            git checkout origin/main -- notebooks/ requirements.txt
+
+            # Replace only the users list in this branch's .public_binder
+            yq -i '.users = load("/tmp/main_public_binder.yml").users' .public_binder
+
+            # Commit and push if anything changed
+            if [ -n "$(git status --porcelain)" ]; then
+              git add notebooks/ requirements.txt .public_binder
+              git commit -m "Sync notebooks, requirements, and users from main"
+              git push origin $branch
+            fi
+          done

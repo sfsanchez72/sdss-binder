@@ -1,17 +1,6 @@
-provider: gh
-spec: andycasey/sdss-binder/main
-
-mounts:
-  data/work/lvm: /mnt/home/sdssv/ceph/work/lvm/
-  data/work/mwm: /mnt/home/sdssv/ceph/work/scifest/
-  data/release: /mnt/home/sdssv/ceph/release/
-  data/sandbox: /mnt/home/sdssv/ceph/work/sandbox/
-  #data/raw: /mnt/home/sdssv/ceph/raw/
-
-mem: 100G
-
 users:
  - acasey@flatironinstitute.org
+ - andycasey@gmail.com
  - andrew.casey@monash.edu
  - aprice-whelan@flatironinstitute.org
  - kevin.mckinnon@utoronto.ca
