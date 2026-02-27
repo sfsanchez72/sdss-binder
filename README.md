@@ -1,22 +1,35 @@
 # SDSS BinderHub
 
-https://binder.flatironinstitute.org/~acasey/sdss
+A Binder is just like running Jupyter notebook on a remote server.
 
+The Flatiron Institute has two Binder servers that host SDSS data:
+
+- Popeye: https://sdsc-binder.flatironinstitute.org/~acasey/sdss
+- Rusty: https://sdsc-binder.flatironinstitute.org/~acasey/sdss
 
 ## Getting Started 
 
 See `notebooks/introduction.ipynb`
 
-# Packages
+## Which Binder server should I use?
 
-Update `requirements.txt` on main, and GitHub Actions will propagate the changes to rusty and popeye.
+You should try [popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) first. If it has all the data products you need, then stick with popeye. If it doesn't have all the data you need, then use [rusty](https://binder.flatironinstitute.org/~acasey/sdss). Here is a summary of some of the differences: 
 
-# Notebooks
 
-Update them on the main branch, and GitHub actions will propagate the changes to rusty and popeye.
+| | Rusty | Popeye |
+|---|---|---|
+| **Data completeness** | More complete — includes raw data and intermediate products | Less complete — most recent final data products only |
+| **Compute** | Standard | More compute available |
+| **Demand** | Busier; higher chance of collisions (your server may not spawn if resources are saturated) | Less heavily used |
+| **Best for** | Work requiring raw or intermediate data products | Work requiring more compute with fewer interruptions |
 
-# Access
+# Contributing
 
-Update the `users` list in .public_binder on main, and GitHub actions will propagate changes
+Any changes to the following on the `main` branch:
 
-# popeye vs rusty
+- `requirements.txt`
+- `notebooks/`
+- or the `users` list in `.public_binder`
+
+will be automatically propagated to both the rusty and popeye instances within five minutes.
+
