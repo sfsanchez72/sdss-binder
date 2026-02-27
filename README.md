@@ -1,19 +1,17 @@
-# SDSS BinderHub
+# SDSS :heart: BinderHub
 
 A Binder is just like running Jupyter notebook on a remote server.
 
 The Flatiron Institute has two Binder servers that host SDSS data:
 
-- Popeye: https://sdsc-binder.flatironinstitute.org/~acasey/sdss
-- Rusty: https://sdsc-binder.flatironinstitute.org/~acasey/sdss
-
-## Getting Started 
-
-See `notebooks/introduction.ipynb`
+- [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) in San Diego
+- [Rusty](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) in New York
 
 ## Which Binder server should I use?
 
-You should try [popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) first. If it has all the data products you need, then stick with popeye. If it doesn't have all the data you need, then use [rusty](https://binder.flatironinstitute.org/~acasey/sdss). Here is a summary of some of the differences: 
+You should try [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) first. If it has all the data products you need, then stick with Popeye. If it doesn't have all the data you need, then use [Rusty](https://binder.flatironinstitute.org/~acasey/sdss). 
+
+Here is a summary of some of the differences: 
 
 
 | | Rusty | Popeye |
@@ -23,13 +21,20 @@ You should try [popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) 
 | **Demand** | Busier; higher chance of collisions (your server may not spawn if resources are saturated) | Less heavily used |
 | **Best for** | Work requiring raw or intermediate data products | Work requiring more compute with fewer interruptions |
 
+# Getting Started
+
+See `notebooks/introduction.ipynb`
+
+
 # Contributing
 
-Any changes to the following on the `main` branch:
+Please add any notebooks that you think might help the collaboration to do science! You can open a pull request to the `main` branch of this repository. Once it is merged, your notebooks will be propagated to both the Rusty and Popeye clusters within five minutes, so other people will be able to use your notebooks.
+
+Similarly, any changes to the following on the `main` branch:
 
 - `requirements.txt`
 - `notebooks/`
 - or the `users` list in `.public_binder`
 
-will be automatically propagated to both the rusty and popeye instances within five minutes.
+will be automatically propagated to both the Rusty and Popeye instances within five minutes.
 
