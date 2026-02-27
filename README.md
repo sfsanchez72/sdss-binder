@@ -13,14 +13,6 @@ You should try [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) 
 
 Here is a summary of the key differences:
 
-**Server characteristics**
-
-| | Popeye | Rusty |
-|---|---|---|
-| **Compute** | More compute available | Standard |
-| **Demand** | Less heavily used | Busier; higher chance of collisions (your server may not spawn if resources are saturated) |
-| **Best for** | Work requiring more compute with fewer interruptions | Work requiring raw or intermediate data products |
-
 **Data availability**
 
 | | Popeye | Rusty |
@@ -31,6 +23,14 @@ Here is a summary of the key differences:
 | DR20 | Astra summary files; spectrum block files | Complete |
 | MWM/ApogeeReduction.jl | 0.2.0 only | Complete |
 | LVM/DRP | 1.2.0 `lvmSFrame` files | 1.2.0 `lvmSFrame` files |
+
+**Server characteristics**
+
+| | Popeye | Rusty |
+|---|---|---|
+| **Compute** | More compute available | Standard |
+| **Demand** | Less heavily used | Busier; higher chance of collisions (your server may not spawn if resources are saturated) |
+| **Best for** | Work requiring more compute with fewer interruptions | Work requiring raw or intermediate data products |
 
 There is some flexibility about what is mirrored at Popeye, and expansion is possible. Tell Andy what products you need!
 
