@@ -26,6 +26,8 @@ Here is a summary of some of the differences:
 | **Demand** | Busier; higher chance of collisions (your server may not spawn if resources are saturated) | Less heavily used |
 | **Best for** | Work requiring raw or intermediate data products | Work requiring more compute with fewer interruptions |
 
+There is some flexibility about what is mirrored at Popeye, and expansion is possible. Tell Andy what products you need!
+
 # Getting Started
 
 See `notebooks/introduction.ipynb`
