@@ -11,20 +11,26 @@ The Flatiron Institute has two Binder servers that host SDSS data:
 
 You should try [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) first. If it has all the data products you need, then stick with Popeye. If it doesn't have all the data you need, then use [Rusty](https://binder.flatironinstitute.org/~acasey/sdss). 
 
-Here is a summary of some of the differences: 
+Here is a summary of the key differences:
 
+**Server characteristics**
 
-| | Rusty | Popeye |
+| | Popeye | Rusty |
 |---|---|---|
-| **Data completeness** | More complete — includes raw data and intermediate products | Less complete — most recent final data products only |
-| MWM/ApogeeReduction.jl | Complete | 0.2.0 only |
+| **Compute** | More compute available | Standard |
+| **Demand** | Less heavily used | Busier; higher chance of collisions (your server may not spawn if resources are saturated) |
+| **Best for** | Work requiring more compute with fewer interruptions | Work requiring raw or intermediate data products |
+
+**Data availability**
+
+| | Popeye | Rusty |
+|---|---|---|
+| **Overall** | Most recent final data products only | More complete — includes raw data and intermediate products |
+| DR17 | None | Complete |
+| DR19 | Astra summary files; `mwmVisit` and `mwmStar` files | Complete |
+| DR20 | Astra summary files; spectrum block files | Complete |
+| MWM/ApogeeReduction.jl | 0.2.0 only | Complete |
 | LVM/DRP | 1.2.0 `lvmSFrame` files | 1.2.0 `lvmSFrame` files |
-| DR17 | Complete | None |
-| DR19 | Complete | Astra summary files; `mwmVisit` and `mwmStar` files |
-| DR20 | Complete | Astra summary files; spectrum block files |
-| **Compute** | Standard | More compute available |
-| **Demand** | Busier; higher chance of collisions (your server may not spawn if resources are saturated) | Less heavily used |
-| **Best for** | Work requiring raw or intermediate data products | Work requiring more compute with fewer interruptions |
 
 There is some flexibility about what is mirrored at Popeye, and expansion is possible. Tell Andy what products you need!
 
