@@ -8,6 +8,8 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,7 +27,7 @@ jobs:
           cp .public_binder /tmp/main_public_binder.yml
 
           for branch in rusty popeye; do
-            git checkout $branch
+            git switch $branch
 
             # Sync notebooks/ and requirements.txt from main
             git checkout origin/main -- notebooks/ requirements.txt
