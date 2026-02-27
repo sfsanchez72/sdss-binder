@@ -17,6 +17,11 @@ Here is a summary of some of the differences:
 | | Rusty | Popeye |
 |---|---|---|
 | **Data completeness** | More complete — includes raw data and intermediate products | Less complete — most recent final data products only |
+| MWM/ApogeeReduction.jl | Complete | 0.2.0 only |
+| LVM/DRP | 1.2.0 `lvmSFrame` files | 1.2.0 `lvmSFrame` files |
+| DR17 | Complete | None |
+| DR19 | Complete | Astra summary files; `mwmVisit` and `mwmStar` files |
+| DR20 | Complete | Astra summary files; spectrum block files |
 | **Compute** | Standard | More compute available |
 | **Demand** | Busier; higher chance of collisions (your server may not spawn if resources are saturated) | Less heavily used |
 | **Best for** | Work requiring raw or intermediate data products | Work requiring more compute with fewer interruptions |
