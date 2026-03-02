@@ -5,7 +5,7 @@ A Binder is just like running Jupyter notebook on a remote server.
 The Flatiron Institute has two Binder servers that host SDSS data:
 
 - [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) in San Diego
-- [Rusty](https://binder.flatironinstitute.org/~acasey/sdss) in New York
+- [Rusty](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) in New York
 
 ## Access
 
@@ -13,17 +13,18 @@ The Flatiron Institute has two Binder servers that host SDSS data:
 
 Ask Andy Casey to make sure you have access. He will need your google-based email address.
 
+
 **As of ~April 2026 (expected):**
 
 Popeye and Rusty both use Google authentication. If you are an approved SDSS-V member with data access rights, and if Google manages your institution email account, then you should be able to access BinderHub already.
 
 If your institution does not use Google to manage email accounts, then you will need to add your personal Google email address as an affiliated email address in the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/home) (ICDB).
 
-Access lists are synchronized from the ICDB and propagated to both Rusty and Popeye every five minutes.
+Access lists are synchronized from the ICDB and propagated to both Rusty and Popeye every five minutes. 
 
 ## Which Binder server should I use?
 
-You should try [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) first. If it has all the data products you need, then stick with Popeye. If it doesn't have all the data you need, then use [Rusty](https://binder.flatironinstitute.org/~acasey/sdss).
+You should try [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) first. If it has all the data products you need, then stick with Popeye. If it doesn't have all the data you need, then use [Rusty](https://binder.flatironinstitute.org/~acasey/sdss). 
 
 Here is a summary of the key differences:
 
@@ -52,9 +53,6 @@ There is some flexibility about what is mirrored at Popeye, and expansion is pos
 
 See `notebooks/introduction.ipynb`
 
-## LVM + spectrospatial models
-
-See `notebooks/lvm/README`
 
 # Contributing
 
@@ -67,3 +65,4 @@ Similarly, any changes to the following on the `main` branch:
 - or the `users` list in `.public_binder`
 
 will be automatically propagated to both the Rusty and Popeye instances within five minutes.
+
