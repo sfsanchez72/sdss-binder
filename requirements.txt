@@ -14,3 +14,6 @@ sdss-semaphore
 pyarrow
 tqdm
 astropy
+jax==0.7.0
+cmasher
+spectracles==0.6.3
