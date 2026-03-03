@@ -81,6 +81,8 @@ def _(mo):
         <!-- Header centered -->
         <h1 style="margin: 0; text-align: center; width: 100%;">MWM DR20 BOSS Explorer</h1>
     </div>
+
+    Click `Run all stale cells` in the bottom right, then `Toggle app view`
     """
     )
     return
