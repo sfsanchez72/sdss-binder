@@ -48,13 +48,33 @@ Here is a summary of the key differences:
 
 There is some flexibility about what is mirrored at Popeye, and expansion is possible. Tell Andy what products you need!
 
-# Getting Started
+# Notebooks
 
-See `notebooks/introduction.ipynb`
+## General
 
-## LVM + spectrospatial models
+| Notebook | Type | Description | Author |
+|---|---|---|---|
+| [Getting Started](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/introduction.ipynb) | Jupyter | Welcome guide covering access, data, storage, compute, and how to use BinderHub | Andy Casey (Flatiron Institute) |
 
-See `notebooks/lvm/README`
+## MWM (Milky Way Mapper)
+
+| Notebook | Type | Description | Author |
+|---|---|---|---|
+| [SDSS-V Explorer](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_explorer.py) | marimo | Interactive explorer for APOGEE spectra from ApogeeReduction.jl — search sources by SDSS ID, view source information, radial velocity plots with phase folding, and interactive spectrum visualization | Andy Casey (Flatiron Institute) |
+| [MWM DR20 BOSS Explorer](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_boss_explorer.py) | marimo | Interactive explorer for MWM DR20 BOSS spectra — look up sources, view spectra, and export subsets | Andy Casey (Flatiron Institute) |
+| [SDSS-V Exposure Filter](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_carton_filter.py) | marimo | Create subsets of ApogeeReduction.jl-reduced spectra based on SDSS-V targeting flags (cartons and programs), and export the filtered data | Andy Casey (Flatiron Institute) |
+| [SDSS-V Sky Coverage Map](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/sky_map.py) | marimo | Interactive all-sky Mollweide visualization of sources with APOGEE spectra — click on points to see source details | Andy Casey (Flatiron Institute) |
+| [ApogeeReduction.jl Demo](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/mwm/ApogeeReduction-jl-demo.ipynb) | Jupyter | Demonstration of working with ApogeeReduction.jl data products (exposures, radial velocities, spectra) | Andy Casey (Flatiron Institute) |
+
+## LVM (Local Volume Mapper)
+
+| Notebook | Type | Description | Author |
+|---|---|---|---|
+| [LVM SFrame Demo](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/hilder-demo.ipynb) | Jupyter | Getting started with LVM data — reading and plotting calibrated, sky-subtracted spectra from `lvmSFrame` files | Thomas Hilder (Monash University) |
+| [Spectrospatial models of W28: \[N II\]](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/1_nii.ipynb) | Jupyter | Spatial-kinematic decomposition of [N II] λ6583 in W28 using spectrospatial models | Andy Casey (Flatiron Institute) |
+| [Spectrospatial models of W28: Hα](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/2_ha.ipynb) | Jupyter | Spatial-kinematic decomposition of Hα in W28 with star masking from [N II] fits | Andy Casey (Flatiron Institute) |
+| [Spectrospatial models of W28: \[O III\]](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/3_oiii.ipynb) | Jupyter | Spatial-kinematic decomposition of [O III] λ5007 in W28 | Andy Casey (Flatiron Institute) |
+| [Spectrospatial models of W28: \[S II\]](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/4_sii.ipynb) | Jupyter | Spatial-kinematic decomposition of [S II] λ6716 in W28 | Andy Casey (Flatiron Institute) |
 
 # Contributing
 
