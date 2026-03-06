@@ -9,17 +9,9 @@ The Flatiron Institute has two Binder servers that host SDSS data:
 
 ## Access
 
-**As of Feb 2026:**
+If you have data access rights in SDSS-V and your institution uses Google to manage email, then you already have access to BinderHub.
 
-Ask Andy Casey to make sure you have access. He will need your google-based email address.
-
-**As of ~April 2026 (expected):**
-
-Popeye and Rusty both use Google authentication. If you are an approved SDSS-V member with data access rights, and if Google manages your institution email account, then you should be able to access BinderHub already.
-
-If your institution does not use Google to manage email accounts, then you will need to add your personal Google email address as an affiliated email address in the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/home) (ICDB).
-
-Access lists are synchronized from the ICDB and propagated to both Rusty and Popeye every five minutes.
+If your institution does not use Google to manage email, then you will need to log in to the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/people/accounts/user) and add a Google-based email address to your profile. Then set the _Flatiron Institute Binder_ email address as your Google-based email address. After you save your profile you will be able to log in to BinderHub within 5-10 minutes.
 
 ## Which Binder server should I use?
 
