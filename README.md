@@ -56,7 +56,7 @@ There is some flexibility about what is mirrored at Popeye, and expansion is pos
 |---|---|---|---|
 | [Getting Started](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/introduction.ipynb) | Jupyter | Welcome guide covering access, data, storage, compute, and how to use BinderHub | Andy Casey |
 
-## MWM (Milky Way Mapper)
+## Milky Way Mapper (MWM)
 
 | Notebook | Type | Description | Author |
 |---|---|---|---|
@@ -67,7 +67,7 @@ There is some flexibility about what is mirrored at Popeye, and expansion is pos
 | [Sky Coverage Map](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/sky_map.py) | marimo | Interactive all-sky Mollweide visualization of sources with APOGEE spectra — click on points to see source details | Andy Casey |
 
 
-## LVM (Local Volume Mapper)
+## Local Volume Mapper (LVM)
 
 | Notebook | Type | Description | Author |
 |---|---|---|---|
