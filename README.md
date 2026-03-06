@@ -67,3 +67,17 @@ Similarly, any changes to the following on the `main` branch:
 - or the `users` list in `.public_binder`
 
 will be automatically propagated to both the Rusty and Popeye instances within five minutes.
+
+# Automation
+
+One computer has a cron job every five minutes to sync the ICDB:
+```
+*/5 * * * * cd <path_to_binder_hub> && ./check_icdb.sh > icdb.log
+```
+
+If the Flatiron BinderHub email addresses in the ICDB have changed then they will be committed to the `.public_binder` file on the main branch. When that is pushed, GitHub actions will sync all notebooks, access lists, and Python requirements to the `rusty` and `popeye` branches. Rusty and Popeye then have a cron job that runs every five minutes just to sync their branch from GitHub.
+```
+*/5 * * * * cd <path_to_binder_hub> && git pull
+```
+
+That means changes to the ICDB will be propagated to both BinderHubs within ten minutes. 
