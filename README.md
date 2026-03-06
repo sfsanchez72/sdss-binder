@@ -44,13 +44,13 @@ There is some flexibility about what is mirrored at Popeye, and expansion is pos
 
 ## General
 
-| Notebook | Launch | Description | Author |
+| Notebook | Description | Author |
 |---|---|---|---|
-| Getting Started | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/introduction.ipynb) | Welcome guide covering access, data, storage, compute, and how to use BinderHub | Andy Casey |
+|  [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/introduction.ipynb) **Getting Started** | Welcome guide covering access, data, storage, compute, and how to use BinderHub | Andy Casey |
 
 ## Milky Way Mapper (MWM)
 
-| Notebook | Launch | Description | Author |
+| Notebook | Description | Author |
 |---|---|---|---|
 | BOSS Explorer | [![](https://img.shields.io/badge/launch-marimo-6925d3?logo=marimo&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_boss_explorer.py) | Interactive explorer for MWM DR20 BOSS spectra — look up sources, view spectra, and export subsets | Kayvon Sharifi |
 | APOGEE Demo | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/mwm/ApogeeReduction-jl-demo.ipynb) | Demonstration of working with ApogeeReduction.jl data products (exposures, radial velocities, spectra) | Kevin McKinnon |
