@@ -44,30 +44,30 @@ There is some flexibility about what is mirrored at Popeye, and expansion is pos
 
 ## General
 
-| Notebook | Type | Description | Author |
+| Notebook | Launch | Description | Author |
 |---|---|---|---|
-| [Getting Started](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/introduction.ipynb) | Jupyter | Welcome guide covering access, data, storage, compute, and how to use BinderHub | Andy Casey |
+| Getting Started | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/introduction.ipynb) | Welcome guide covering access, data, storage, compute, and how to use BinderHub | Andy Casey |
 
 ## Milky Way Mapper (MWM)
 
-| Notebook | Type | Description | Author |
+| Notebook | Launch | Description | Author |
 |---|---|---|---|
-| [BOSS Explorer](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_boss_explorer.py) | marimo | Interactive explorer for MWM DR20 BOSS spectra — look up sources, view spectra, and export subsets | Kayvon Sharifi |
-| [APOGEE Demo](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/mwm/ApogeeReduction-jl-demo.ipynb) | Jupyter | Demonstration of working with ApogeeReduction.jl data products (exposures, radial velocities, spectra) | Kevin McKinnon |
-| [APOGEE Explorer](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_explorer.py) | marimo | Interactive explorer for APOGEE spectra from ApogeeReduction.jl — search sources by SDSS ID, view source information, radial velocity plots with phase folding, and interactive spectrum visualization | Andy Casey |
-| [APOGEE Exposure Filter](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_carton_filter.py) | marimo | Create subsets of ApogeeReduction.jl-reduced spectra based on SDSS-V targeting flags (cartons and programs), and export the filtered data | Andy Casey |
-| [Sky Coverage Map](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/sky_map.py) | marimo | Interactive all-sky Mollweide visualization of sources with APOGEE spectra — click on points to see source details | Andy Casey |
+| BOSS Explorer | [![](https://img.shields.io/badge/launch-marimo-6925d3?logo=marimo&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_boss_explorer.py) | Interactive explorer for MWM DR20 BOSS spectra — look up sources, view spectra, and export subsets | Kayvon Sharifi |
+| APOGEE Demo | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/mwm/ApogeeReduction-jl-demo.ipynb) | Demonstration of working with ApogeeReduction.jl data products (exposures, radial velocities, spectra) | Kevin McKinnon |
+| APOGEE Explorer | [![](https://img.shields.io/badge/launch-marimo-6925d3?logo=marimo&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_explorer.py) | Interactive explorer for APOGEE spectra from ApogeeReduction.jl — search sources by SDSS ID, view source information, radial velocity plots with phase folding, and interactive spectrum visualization | Andy Casey |
+| APOGEE Exposure Filter | [![](https://img.shields.io/badge/launch-marimo-6925d3?logo=marimo&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_carton_filter.py) | Create subsets of ApogeeReduction.jl-reduced spectra based on SDSS-V targeting flags (cartons and programs), and export the filtered data | Andy Casey |
+| Sky Coverage Map | [![](https://img.shields.io/badge/launch-marimo-6925d3?logo=marimo&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/sky_map.py) | Interactive all-sky Mollweide visualization of sources with APOGEE spectra — click on points to see source details | Andy Casey |
 
 
 ## Local Volume Mapper (LVM)
 
-| Notebook | Type | Description | Author |
+| Notebook | Launch | Description | Author |
 |---|---|---|---|
-| [Getting Started](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/hilder-demo.ipynb) | Jupyter | Getting started with LVM data — reading and plotting calibrated, sky-subtracted spectra from `lvmSFrame` files | Thomas Hilder |
-| [W28: \[N II\]](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/1_nii.ipynb) | Jupyter | Spatial-kinematic decomposition of [N II] λ6583 in W28 using spectrospatial models | Thomas Hilder |
-| [W28: Hα](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/2_ha.ipynb) | Jupyter | Spatial-kinematic decomposition of Hα in W28 with star masking from [N II] fits | Thomas Hilder |
-| [W28: \[O III\]](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/3_oiii.ipynb) | Jupyter | Spatial-kinematic decomposition of [O III] λ5007 in W28 | Thomas Hilder |
-| [W28: \[S II\]](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/4_sii.ipynb) | Jupyter | Spatial-kinematic decomposition of [S II] λ6716 in W28 | Thomas Hilder |
+| Getting Started | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/hilder-demo.ipynb) | Getting started with LVM data — reading and plotting calibrated, sky-subtracted spectra from `lvmSFrame` files | Thomas Hilder |
+| W28: \[N II\] | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/1_nii.ipynb) | Spatial-kinematic decomposition of [N II] λ6583 in W28 using spectrospatial models | Thomas Hilder |
+| W28: Hα | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/2_ha.ipynb) | Spatial-kinematic decomposition of Hα in W28 with star masking from [N II] fits | Thomas Hilder |
+| W28: \[O III\] | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/3_oiii.ipynb) | Spatial-kinematic decomposition of [O III] λ5007 in W28 | Thomas Hilder |
+| W28: \[S II\] | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/W28/4_sii.ipynb) | Spatial-kinematic decomposition of [S II] λ6716 in W28 | Thomas Hilder |
 
 # Contributing
 
