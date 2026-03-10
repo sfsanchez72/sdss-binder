@@ -10,13 +10,23 @@ if [ "${1:-}" = "--dry-run" ]; then
 fi
 
 TMPDIR=$(mktemp -d)
-REPO_URL="git@github.com:andycasey/sdss-binder.git"
+REPO_URL="https://github.com/andycasey/sdss-binder.git"
+EXCLUDE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/exclude.txt"
 
 log "Temporary folder: $TMPDIR"
 
 git clone --branch main --depth 1 "$REPO_URL" "$TMPDIR" > /dev/null 2>&1
 
 cd "$TMPDIR"
+
+if [ -f "$EXCLUDE_FILE" ]; then
+    cp "$EXCLUDE_FILE" exclude.txt
+    N_EXCLUDED=$(grep -c '[^[:space:]]' exclude.txt || true)
+    log "Loaded $N_EXCLUDED excluded emails from exclude.txt"
+else
+    touch exclude.txt
+    log "No exclude.txt found; proceeding without exclusions."
+fi
 
 AUTH_RESPONSE=$(curl https://soji.sdss.utah.edu/collaboration/api/login \
     -s -c soji.cookies \
@@ -34,7 +44,20 @@ fi
 curl https://soji.sdss.utah.edu/collaboration/api/people/browse/category%3Dpeople/topic%3Daccounts/subtopic%3Dcontacts \
     -s -b soji.cookies > soji.json
 
-grep -o '"fi_binder_account": "[^"]*"' soji.json | grep -o '"[^"]*"$' | tr -d '"' | awk 'BEGIN{print "users:"} {print "- " $0}' > users.yaml
+EXCLUDE_JSON=$(awk 'NF' exclude.txt | awk '{print tolower($0)}' | jq -R . | jq -s .)
+
+jq -r --argjson excludes "$EXCLUDE_JSON" '
+    .results[]
+    | select(.fi_binder_account != null and .fi_binder_account != "")
+    | select(
+        (
+            ((.email // "")          | ascii_downcase | IN($excludes[])) or
+            ((.fi_binder_account)    | ascii_downcase | IN($excludes[])) or
+            ((.contacts // [])       | map(ascii_downcase) | any(IN($excludes[])))
+        ) | not
+      )
+    | .fi_binder_account
+' soji.json | awk 'BEGIN{print "users:"} {print "- " $0}' > users.yaml
 
 if ! diff -q users.yaml .public_binder > /dev/null 2>&1; then
     ADDED=$(diff .public_binder users.yaml | grep '^>' | grep -v '^> users:' | sed 's/^> - //' | sort)
