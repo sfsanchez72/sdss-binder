@@ -1,17 +1,21 @@
 # SDSS :heart: BinderHub
 
-A Binder is just like running Jupyter notebook on a remote server.
+BinderHub is like running Jupyter notebook on a remote server.
 
-The Flatiron Institute has two Binder servers that host SDSS data:
+The Flatiron Institute has two BinderHubs that host SDSS data:
 
 - [Popeye](https://sdsc-binder.flatironinstitute.org/~acasey/sdss) in San Diego
 - [Rusty](https://binder.flatironinstitute.org/~acasey/sdss) in New York
 
 ## Access
 
-If you have data access rights in SDSS-V and your institution uses Google to manage email, then you already have access to BinderHub.
+**Note, these instructions changed on 2026-03-11. You will need to specify a Gmail.com account as your Flatiron Institute Binder.**
 
-If your institution does not use Google to manage email, then you will need to log in to the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/people/accounts/user) and add a Google-based email address to your profile. Then set the _Flatiron Institute Binder_ email address as your Google-based email address. After you save your profile you will be able to log in to BinderHub within 5-10 minutes.
+To access BinderHub:
+1. Log in to the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/people/accounts/user) and add a GMail domain to your profile (e.g., me@gmail.com).
+2. Set the _Flatiron Institute Binder_ email address as to your GMail address, and save your profile.
+
+You will be able to log in to both BinderHubs within 5-10 minutes. If you don't have a GMail address, or you prefer to use your institution-based email address that Google manages, please [open an issue](https://github.com/andycasey/sdss-binder/issues/new).
 
 ## Which Binder server should I use?
 
