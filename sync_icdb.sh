@@ -12,6 +12,7 @@ fi
 TMPDIR=$(mktemp -d)
 REPO_URL="https://github.com/andycasey/sdss-binder.git"
 EXCLUDE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/exclude.txt"
+INCLUDE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/include.txt"
 
 log "Temporary folder: $TMPDIR"
 
@@ -26,6 +27,15 @@ if [ -f "$EXCLUDE_FILE" ]; then
 else
     touch exclude.txt
     log "No exclude.txt found; proceeding without exclusions."
+fi
+
+if [ -f "$INCLUDE_FILE" ]; then
+    cp "$INCLUDE_FILE" include.txt
+    N_INCLUDED=$(grep -c '[^[:space:]]' include.txt || true)
+    log "Loaded $N_INCLUDED forced-include emails from include.txt"
+else
+    touch include.txt
+    log "No include.txt found; proceeding without forced inclusions."
 fi
 
 AUTH_RESPONSE=$(curl https://soji.sdss.utah.edu/collaboration/api/login \
@@ -50,6 +60,10 @@ jq -r --argjson excludes "$EXCLUDE_JSON" '
     .results[]
     | select(.fi_binder_account != null and .fi_binder_account != "")
     | select(
+        (.fi_binder_account | ascii_downcase | endswith("@gmail.com")) or
+        ((.fi_binder_account | ascii_downcase) != ((.email // "") | ascii_downcase))
+      )
+    | select(
         (
             ((.email // "")          | ascii_downcase | IN($excludes[])) or
             ((.fi_binder_account)    | ascii_downcase | IN($excludes[])) or
@@ -57,7 +71,11 @@ jq -r --argjson excludes "$EXCLUDE_JSON" '
         ) | not
       )
     | .fi_binder_account
-' soji.json | awk 'BEGIN{print "users:"} {print "- " $0}' > users.yaml
+' soji.json > users_base.txt
+
+{ cat users_base.txt; awk 'NF' include.txt; } \
+    | awk '!seen[tolower($0)]++' \
+    | awk 'BEGIN{print "users:"} {print "- " $0}' > users.yaml
 
 if ! diff -q users.yaml .public_binder > /dev/null 2>&1; then
     ADDED=$(diff .public_binder users.yaml | grep '^>' | grep -v '^> users:' | sed 's/^> - //' | sort)
@@ -85,4 +103,4 @@ else
 fi
 
 cd /
-rm -rf "$TMPDIR"
+#rm -rf "$TMPDIR"
