@@ -67,7 +67,7 @@ See the [LVM notebooks README](notebooks/lvm/README.md) for more detailed descri
 |---|---|
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/hilder-demo.ipynb) | **Getting Started**: Getting started with LVM data — reading and plotting calibrated, sky-subtracted spectra from `lvmSFrame` files, by _Thomas Hilder_ |
 
-### spectracles
+### `spectracles` (spectrospatial modelling)
 
 #### Single emission line tutorial
 | Launch | Notebook |
