@@ -60,6 +60,9 @@ There is some flexibility about what is mirrored at Popeye, and expansion is pos
 | [![](https://img.shields.io/badge/launch-marimo-6925d3?logo=marimo&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=marimo/edit/notebooks/marimo/mwm_white_dwarfs.py) | **White Dwarf Spectrum Fitter**: JAX-based DA-type white dwarf spectrum fitter with bicubic grid interpolation, Levenberg-Marquardt optimization, and Hessian-based uncertainties, by _Andy Casey_ |
 
 ## Local Volume Mapper (LVM)
+
+See the [LVM notebooks README](notebooks/lvm/README.md) for more detailed descriptions of each notebook.
+
 | Launch | Notebook |
 |---|---|
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/hilder-demo.ipynb) | **Getting Started**: Getting started with LVM data — reading and plotting calibrated, sky-subtracted spectra from `lvmSFrame` files, by _Thomas Hilder_ |
