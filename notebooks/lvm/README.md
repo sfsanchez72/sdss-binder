@@ -4,7 +4,7 @@
 
 - **[hilder-demo.ipynb](hilder-demo.ipynb)**: Introduction to working with LVM data. Shows how to read `lvmSFrame` FITS files (both manually with `astropy.io.fits` and using `lvm_tools`), plot calibrated sky-subtracted spectra, make integrated flux maps, and query tiles by coordinates or MJD. By _Thomas Hilder_.
 
-## spectracles
+## `spectracles` (spectrospatial modelling)
 
 Notebooks using the [`spectracles`](https://github.com/thomashilder/spectracles) library for joint spectral-spatial modelling of emission lines in LVM IFU data. `spectracles` models spectral quantities (e.g., line flux, radial velocity, velocity dispersion) as continuous fields on the sky using accelerated Gaussian Processes and JAX. See Hilder+2026 for details.
 
