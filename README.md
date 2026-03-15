@@ -63,6 +63,18 @@ There is some flexibility about what is mirrored at Popeye, and expansion is pos
 | Launch | Notebook |
 |---|---|
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/hilder-demo.ipynb) | **Getting Started**: Getting started with LVM data — reading and plotting calibrated, sky-subtracted spectra from `lvmSFrame` files, by _Thomas Hilder_ |
+
+### spectracles
+
+#### Single emission line tutorial
+| Launch | Notebook |
+|---|---|
+| [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_single_line/1_fit_model.ipynb) | **Fit Model**: Fit a spectrospatial model to a single emission line in LVM data, by _Thomas Hilder_ |
+| [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_single_line/2_plot_results.ipynb) | **Plot Results**: Visualise the results of the single emission line fit, by _Thomas Hilder_ |
+
+#### W28
+| Launch | Notebook |
+|---|---|
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/1_nii.ipynb) | **W28: [N II]**: Spatial-kinematic decomposition of [N II] λ6583 in W28 using spectrospatial models, by _Thomas Hilder_ |
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/2_ha.ipynb) | **W28: Hα**: Spatial-kinematic decomposition of Hα in W28 with star masking from [N II] fits, by _Thomas Hilder_ |
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/3_oiii.ipynb) | **W28: [O III]**: Spatial-kinematic decomposition of [O III] λ5007 in W28, by _Thomas Hilder_ |
