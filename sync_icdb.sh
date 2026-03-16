@@ -103,4 +103,4 @@ else
 fi
 
 cd /
-#rm -rf "$TMPDIR"
+rm -rf "$TMPDIR"
