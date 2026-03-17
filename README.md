@@ -1,4 +1,4 @@
-# SDSS :heart: BinderHub
+# SDSS ❤️ BinderHub
 
 BinderHub is like running Jupyter notebook on a remote server.
 
