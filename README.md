@@ -1,4 +1,4 @@
-# SDSS :heart: BinderHub
+# SDSS ❤️ BinderHub
 
 BinderHub is like running Jupyter notebook on a remote server.
 
@@ -12,10 +12,10 @@ The Flatiron Institute has two BinderHubs that host SDSS data:
 **Note, these instructions changed on 2026-03-11. You will need to specify a Gmail.com account as your Flatiron Institute Binder.**
 
 To access BinderHub:
-1. Log in to the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/people/accounts/user) and add a GMail domain to your profile (e.g., me@gmail.com).
-2. Set the _Flatiron Institute Binder_ email address as to your GMail address, and save your profile.
+1. Log in to the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/people/accounts/user) and add a Gmail domain to your profile (e.g., me@gmail.com).
+2. Set the _Flatiron Institute Binder_ email address as to your Gmail address, and save your profile.
 
-You will be able to log in to both BinderHubs within 5-10 minutes. If you don't have a GMail address, or you prefer to use your institution-based email address that Google manages, please [open an issue](https://github.com/andycasey/sdss-binder/issues/new).
+You will be able to log in to both BinderHubs within 5-10 minutes. If you don't have a Gmail address, or you prefer to use your institution-based email address that Google manages, please [open an issue](https://github.com/andycasey/sdss-binder/issues/new).
 
 ## Which Binder server should I use?
 
