@@ -30,6 +30,8 @@ jobs:
             git switch $branch
 
             # Sync notebooks/ and requirements.txt from main
+            # Delete first to ensure deletions propagate, then checkout fresh
+            rm -rf notebooks/
             git checkout origin/main -- notebooks/ requirements.txt
 
             # Replace only the users list in this branch's .public_binder
