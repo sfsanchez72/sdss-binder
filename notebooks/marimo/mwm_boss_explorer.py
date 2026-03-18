@@ -852,7 +852,7 @@ def _(mo, outfilename):
         label=f"save spectra to `{outfile}`&nbsp;&nbsp;💾"
     )
 
-    download_md_body = mo.md("After saving, download the spectra from the file tree in your main BinderHub page")
+    download_md_body = mo.md("After saving, click the file tree icon in the top left of this page and download the spectra.")
     return download_md_body, outfile, save_spectra_button, save_subset_option
 
 
