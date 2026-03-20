@@ -88,6 +88,14 @@ See the [LVM notebooks README](notebooks/lvm/README.md) for more detailed descri
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/3_oiii.ipynb) | **W28: [O III]**: Spatial-kinematic decomposition of [O III] λ5007 in W28, by _Thomas Hilder_ |
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/4_sii.ipynb) | **W28: [S II]**: Spatial-kinematic decomposition of [S II] λ6716 in W28, by _Thomas Hilder_ |
 
+# Storage
+
+BinderHub lets you drag-and-drop to upload or download files. It's very handy. However, **there is no persistent storage**.
+
+You should only ever save things to your `home/` directory. If you save things anywhere else, **it will be deleted when your notebook server finishes**. Please try to keep things stored in your `home/` directory to be less than 1 TB.
+
+Do not store any sensitive or critical data on this service. Anything you put in your <code>home/</code> directory may be made available to Flatiron Institute researchers for the purpose of collaboration. All storage and resources should be considered best-effort scratch space and come with no guarantees or backups. Your entire account, including files in your <code>home/</code> directory will be removed after 7 days of inactivity.
+
 # Contributing
 
 Please add any notebooks that you think might help the collaboration to do science! You can open a pull request to the `main` branch of this repository. Once it is merged, your notebooks will be propagated to both the Rusty and Popeye clusters within five minutes, so other people will be able to use your notebooks.
