@@ -16,7 +16,7 @@ To access BinderHub:
 2. Set the _Flatiron Institute Binder_ email address as to your Gmail address, and save your profile.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ddfe47f2-8d8c-437f-a918-b224d3349c5d" width="50%">
+  <img src="https://github.com/user-attachments/assets/ddfe47f2-8d8c-437f-a918-b224d3349c5d" width="70%">
 </p>
 
 You will be able to log in to both BinderHubs within 5-10 minutes. If you don't have a Gmail address, or you prefer to use your institution-based email address that Google manages, please [open an issue](https://github.com/andycasey/sdss-binder/issues/new).
