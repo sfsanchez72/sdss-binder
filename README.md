@@ -15,6 +15,10 @@ To access BinderHub:
 1. Log in to the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/people/accounts/user) and add a Gmail domain to your profile (e.g., me@gmail.com).
 2. Set the _Flatiron Institute Binder_ email address as to your Gmail address, and save your profile.
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ddfe47f2-8d8c-437f-a918-b224d3349c5d" width="50%">
+</p>
+
 You will be able to log in to both BinderHubs within 5-10 minutes. If you don't have a Gmail address, or you prefer to use your institution-based email address that Google manages, please [open an issue](https://github.com/andycasey/sdss-binder/issues/new).
 
 ## Which Binder server should I use?
