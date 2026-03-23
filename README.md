@@ -15,6 +15,10 @@ To access BinderHub:
 1. Log in to the [SDSS Internal Collaboration Database](https://soji.sdss.utah.edu/collaboration/people/accounts/user) and add a Gmail domain to your profile (e.g., me@gmail.com).
 2. Set the _Flatiron Institute Binder_ email address as to your Gmail address, and save your profile.
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ddfe47f2-8d8c-437f-a918-b224d3349c5d" width="70%">
+</p>
+
 You will be able to log in to both BinderHubs within 5-10 minutes. If you don't have a Gmail address, or you prefer to use your institution-based email address that Google manages, please [open an issue](https://github.com/andycasey/sdss-binder/issues/new).
 
 ## Which Binder server should I use?
@@ -83,6 +87,14 @@ See the [LVM notebooks README](notebooks/lvm/README.md) for more detailed descri
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/2_ha.ipynb) | **W28: Hα**: Spatial-kinematic decomposition of Hα in W28 with star masking from [N II] fits, by _Thomas Hilder_ |
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/3_oiii.ipynb) | **W28: [O III]**: Spatial-kinematic decomposition of [O III] λ5007 in W28, by _Thomas Hilder_ |
 | [![](https://img.shields.io/badge/launch-Jupyter-F37626?logo=jupyter&logoColor=white)](https://sdsc-binder.flatironinstitute.org/~acasey/sdss?urlpath=lab/tree/notebooks/lvm/spectracles_W28/4_sii.ipynb) | **W28: [S II]**: Spatial-kinematic decomposition of [S II] λ6716 in W28, by _Thomas Hilder_ |
+
+# Storage
+
+BinderHub lets you drag-and-drop to upload or download files. It's very handy. However, **there is no persistent storage**.
+
+You should only ever save things to your `home/` directory. If you save things anywhere else, **it will be deleted when your notebook server finishes**. Please try to keep things stored in your `home/` directory to be less than 1 TB.
+
+Do not store any sensitive or critical data on this service. Anything you put in your <code>home/</code> directory may be made available to Flatiron Institute researchers for the purpose of collaboration. All storage and resources should be considered best-effort scratch space and come with no guarantees or backups. Your entire account, including files in your <code>home/</code> directory will be removed after 7 days of inactivity.
 
 # Contributing
 
