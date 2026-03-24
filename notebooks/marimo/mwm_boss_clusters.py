@@ -119,7 +119,7 @@ def _(decode_hdf5_bytes, fitsio, h5py, mo, pd):
         hclu = hclu.sort_values("N_stars_w_BOSS_spectrum", ascending=False).reset_index(drop=True)
 
 
-        load_spinner.update("Grabbing BOSSNet information...")
+        load_spinner.update("Grabbing BOSS Net parameters...")
 
 
         bn_path = 'data/release/dr20/spectro/astra/0.8.1/summary/astraAllStarBossNet-0.8.1.fits.gz'
