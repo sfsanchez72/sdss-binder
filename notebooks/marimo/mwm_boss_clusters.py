@@ -57,7 +57,9 @@ def _():
 
         for col in df.columns:
             if df[col].apply(lambda x: isinstance(x, bytes)).any():
-                df[col] = df[col].apply(lambda x: x.decode("utf-8") if isinstance(x, bytes) else x)
+                df[col] = df[col].apply(
+                    lambda x: x.decode("utf-8") if isinstance(x, bytes) else x
+                )
         return df
 
     return (
@@ -77,7 +79,8 @@ def _():
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     <div style="display: flex; align-items: center; justify-content: center; position: relative; height: 80px; width: 100%;">
         <img src="https://www.sdss.org/wp-content/uploads/2022/09/sdss-new-logo-72dpi.png"
              style="height: 72px; position: absolute; right: 0;">
@@ -92,7 +95,8 @@ def _(mo):
     </div>
 
     </div>
-    """)
+    """
+    )
     return
 
 
@@ -110,21 +114,33 @@ def _(decode_hdf5_bytes, fitsio, h5py, mo, pd):
             continuum = f["/spectra/continuum"][:]
             wavelength = f["/spectra/wavelength"][()]
 
-        foc = flux/continuum
+        foc = flux / continuum
 
         hclu = decode_hdf5_bytes(pd.DataFrame(hclu))
         allstar_hmem = decode_hdf5_bytes(pd.DataFrame(allstar_hmem))
 
-
-        hclu = hclu.sort_values("N_stars_w_BOSS_spectrum", ascending=False).reset_index(drop=True)
-
+        hclu = hclu.sort_values("N_stars_w_BOSS_spectrum", ascending=False).reset_index(
+            drop=True
+        )
 
         load_spinner.update("Grabbing BOSS Net parameters...")
 
-
-        bn_path = 'data/release/dr20/spectro/astra/0.8.1/summary/astraAllStarBossNet-0.8.1.fits.gz'
-        bn_cols = ['sdss_id', 'telescope', 'teff', 'e_teff', 'logg', 'e_logg', 'fe_h', 
-                   'e_fe_h', 'result_flags', 'flag_warn', 'flag_bad', 'bn_v_r', 'e_bn_v_r']
+        bn_path = "data/release/dr20/spectro/astra/0.8.1/summary/astraAllStarBossNet-0.8.1.fits.gz"
+        bn_cols = [
+            "sdss_id",
+            "telescope",
+            "teff",
+            "e_teff",
+            "logg",
+            "e_logg",
+            "fe_h",
+            "e_fe_h",
+            "result_flags",
+            "flag_warn",
+            "flag_bad",
+            "bn_v_r",
+            "e_bn_v_r",
+        ]
 
         with fitsio.FITS(bn_path) as f:
 
@@ -137,28 +153,37 @@ def _(decode_hdf5_bytes, fitsio, h5py, mo, pd):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     <h2 style="text-align: left; font-weight: bold;"> Clusters and Moving Groups with DR20 BOSS Spectra </h2>
-    """)
+    """
+    )
     return
 
 
 @app.cell(hide_code=True)
 def _(hclu, np):
-    hclu['Association Name'] = hclu.Name.str.replace('_', ' ')
-    hclu['HR24 Age (Myr)'] = np.round(10**hclu.logAge50 / 1e6, 1)
-    hclu['HR24 Distance (pc)'] = np.round(hclu.dist50, 1)
-    hclu['Number of Members with BOSS Spectrum'] = hclu.N_stars_w_BOSS_spectrum
-    hclu["HR24 Association Type"] = hclu["Type"].map({
-        "o": "open cluster",
-        "m": "moving group",
-        "g": "globular cluster",
-        "d": "too distant to classify",
-        "r": "rejected"
-    })
+    hclu["Association Name"] = hclu.Name.str.replace("_", " ")
+    hclu["HR24 Age (Myr)"] = np.round(10**hclu.logAge50 / 1e6, 1)
+    hclu["HR24 Distance (pc)"] = np.round(hclu.dist50, 1)
+    hclu["Number of Members with BOSS Spectrum"] = hclu.N_stars_w_BOSS_spectrum
+    hclu["HR24 Association Type"] = hclu["Type"].map(
+        {
+            "o": "open cluster",
+            "m": "moving group",
+            "g": "globular cluster",
+            "d": "too distant to classify",
+            "r": "rejected",
+        }
+    )
 
-
-    display_cols = ['Association Name', 'HR24 Association Type', 'Number of Members with BOSS Spectrum', 'HR24 Distance (pc)', 'HR24 Age (Myr)']
+    display_cols = [
+        "Association Name",
+        "HR24 Association Type",
+        "Number of Members with BOSS Spectrum",
+        "HR24 Distance (pc)",
+        "HR24 Age (Myr)",
+    ]
 
     hclu[display_cols]
     return
@@ -166,17 +191,20 @@ def _(hclu, np):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     <h2 style="text-align: left; font-weight: bold;"> Plot and Select </h2>
 
     To view the spectra, make a box selection by clicking and dragging on the plot, or hold `shift` while doing so to make a lasso selection.
-    """)
+    """
+    )
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    column_md = mo.md(r"""
+    column_md = mo.md(
+        r"""
     `['sdss_id', 'gaia_dr3_source_id', 'ra', 'dec', 'l', 'b', 'plx', 'e_plx', 'pmra', 'e_pmra', 'pmde', 'e_pmde', 'gaia_v_rad', 'gaia_e_v_rad', 'g_mag', 'bp_mag', 'rp_mag', 'j_mag', 'h_mag', 'k_mag', 'w1_mag', 'w2_mag', 'telescope', 'n_good_visits', 'v_rad', 'e_v_rad', 'std_v_rad', 'median_e_v_rad', 'xcsao_teff', 'xcsao_e_teff', 'xcsao_logg', 'xcsao_e_logg', 'xcsao_fe_h', 'xcsao_e_fe_h', 'xcsao_meanrxc', 'snr', 'zwarning_flags', 'nmf_rchi2', 'nmf_flags', 'HR24_cluster_name', 'HR24_mem_prob', 'RUWE', 'teff', 'e_teff', 'logg', 'e_logg', 'fe_h', 'e_fe_h', 'result_flags', 'flag_warn', 'flag_bad', 'bn_v_r', 'e_bn_v_r']`
 
 
@@ -186,9 +214,12 @@ def _(mo):
 
     All other columns from `mwmAllStar-0.8.1.fits`
 
-    """)
+    """
+    )
 
-    mo.accordion({'<h4 style="text-align: left;"> See available columns </h4>': column_md})
+    mo.accordion(
+        {'<h4 style="text-align: left;"> See available columns </h4>': column_md}
+    )
     return
 
 
@@ -199,7 +230,8 @@ def _(mo):
     y_col = mo.ui.text_area(value="g_mag + 5*np.log10(plx/100)", label="y")
 
     cuts = mo.ui.text_area(
-        placeholder="e.g.\ng_mag + 5*np.log10(plx/100) > 8.1\nsnr > 10\nsdss_id == 12345", label="✂️"
+        placeholder="e.g.\ng_mag + 5*np.log10(plx/100) > 8.1\nsnr > 10\nsdss_id == 12345",
+        label="✂️",
     )
 
     x_label = mo.ui.text(value="G-G_{RP}", label="x label")
@@ -265,10 +297,14 @@ def _(colorbar, mo):
         cb_flip = mo.ui.checkbox(label="flip plotting order")
         cb_log = mo.ui.checkbox(label="log")
 
-        cb_out = mo.hstack([cb_col, cb_label, cb_range, cb_cmap, cb_log, cb_flip], justify="start", gap=2)
+        cb_out = mo.hstack(
+            [cb_col, cb_label, cb_range, cb_cmap, cb_log, cb_flip],
+            justify="start",
+            gap=2,
+        )
 
     else:
-        cb_out = mo.md('')
+        cb_out = mo.md("")
 
     cb_out
     return cb_cmap, cb_col, cb_flip, cb_label, cb_log, cb_range
@@ -338,9 +374,11 @@ def _(
     y_label,
     y_range,
 ):
-    allstar_hrd = allstar_hmem.loc[allstar_hmem.HR24_cluster_name == cluster_name_val].copy()
+    allstar_hrd = allstar_hmem.loc[
+        allstar_hmem.HR24_cluster_name == cluster_name_val
+    ].copy()
 
-    n_stars_hrd = len(np.unique(allstar_hrd['sdss_id']))
+    n_stars_hrd = len(np.unique(allstar_hrd["sdss_id"]))
     n_spectra_hrd = len(allstar_hrd)
 
     if observatory.value == "LCO":
@@ -365,7 +403,7 @@ def _(
     namespace = {col: allstar_hrd[col] for col in allstar_hrd.columns}
     namespace["np"] = np
 
-    hrd_fig, hrd_ax = plt.subplots(figsize=(10,6), constrained_layout=True)
+    hrd_fig, hrd_ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
 
     x_vals = eval(x_col.value, {"__builtins__": {}}, namespace)
     y_vals = eval(y_col.value, {"__builtins__": {}}, namespace)
@@ -385,9 +423,17 @@ def _(
         allstar_hrd = allstar_hrd.iloc[ix_cb_vals]
 
         if cb_log.value:
-            norm = LogNorm(*tuple(float(x.strip()) for x in cb_range.value.split(","))) if cb_range.value else LogNorm()
+            norm = (
+                LogNorm(*tuple(float(x.strip()) for x in cb_range.value.split(",")))
+                if cb_range.value
+                else LogNorm()
+            )
         else:
-            norm = Normalize(*tuple(float(x.strip()) for x in cb_range.value.split(","))) if cb_range.value else Normalize()
+            norm = (
+                Normalize(*tuple(float(x.strip()) for x in cb_range.value.split(",")))
+                if cb_range.value
+                else Normalize()
+            )
 
         sc = hrd_ax.scatter(
             allstar_hrd["x_vals"],
@@ -395,7 +441,7 @@ def _(
             c=allstar_hrd["cb_vals"],
             s=10,
             edgecolors="gainsboro",
-            lw=.5,
+            lw=0.5,
             cmap=cb_cmap.value,
             norm=norm,
         )
@@ -409,7 +455,7 @@ def _(
             c="k",
             s=10,
             edgecolors="gainsboro",
-            lw=.5,
+            lw=0.5,
         )
 
     if x_range.value:
@@ -436,16 +482,26 @@ def _(
         hrd_ax.set_ylabel(f"${y_label.value}$", fontsize=hrd_fontsize)
 
     hrd_ax.grid(True, which="both", zorder=-100)
+    # hrd_ax.set_aspect('equal', adjustable='datalim')
 
     hrd_tit_str_left = cluster_name.value
-    hrd_tit_str_right = dist_str+'    '+age_str
-    hrd_ax.set_title(hrd_tit_str_left, loc='left', fontsize=hrd_fontsize)
-    hrd_ax.set_title(hrd_tit_str_right, loc='right', fontsize=hrd_fontsize)
+    hrd_tit_str_right = dist_str + "    " + age_str
+    hrd_ax.set_title(hrd_tit_str_left, loc="left", fontsize=hrd_fontsize)
+    hrd_ax.set_title(hrd_tit_str_right, loc="right", fontsize=hrd_fontsize)
 
     hrd = mo.ui.matplotlib(plt.gca(), debounce=True)
 
-    n_stars_plot_hrd = len(np.unique(allstar_hrd['sdss_id']))
+    y_lo, y_hi = sorted(hrd_ax.get_ylim())
+    x_lo, x_hi = sorted(hrd_ax.get_xlim())
 
+    n_stars_plot_hrd_mask = (
+        (allstar_hrd["x_vals"] >= x_lo)
+        & (allstar_hrd["x_vals"] <= x_hi)
+        & (allstar_hrd["y_vals"] >= y_lo)
+        & (allstar_hrd["y_vals"] <= y_hi)
+    )
+
+    n_stars_plot_hrd = len(np.unique(allstar_hrd.loc[n_stars_plot_hrd_mask, "sdss_id"]))
 
     n_stars_display = mo.stat(
         value=n_stars_hrd,
@@ -454,8 +510,8 @@ def _(
 
     n_spectra_display = mo.stat(
         value=n_spectra_hrd,
-        label=f'Star-level DR20 BOSS Spectra in {cluster_name.value}',
-        caption='"Star-level" --> 1 spectrum per SDSS ID per telescope'
+        label=f"Star-level DR20 BOSS Spectra in {cluster_name.value}",
+        caption='"Star-level" --> 1 spectrum per SDSS ID per telescope',
     )
 
     n_stars_plot_display = mo.stat(
@@ -463,18 +519,23 @@ def _(
         label=f"Stars shown on scatter plot",
     )
 
-    mo.vstack([
-        mo.hstack([n_stars_display, n_spectra_display, n_stars_plot_display], justify='center', gap=10),
-        mo.hstack([hrd], justify="center"),  
-    ], gap=2)
+    mo.vstack(
+        [
+            mo.hstack(
+                [n_stars_display, n_spectra_display, n_stars_plot_display],
+                justify="center",
+                gap=10,
+            ),
+            mo.hstack([hrd], justify="center"),
+        ],
+        gap=2,
+    )
     return allstar_hrd, hrd
 
 
 @app.cell(hide_code=True)
 def _(allstar_hrd, hrd):
-    select_mask = hrd.value.get_mask(
-        allstar_hrd["x_vals"], allstar_hrd["y_vals"]
-    )
+    select_mask = hrd.value.get_mask(allstar_hrd["x_vals"], allstar_hrd["y_vals"])
 
     allstar_select = allstar_hrd[select_mask]
     return (allstar_select,)
@@ -487,8 +548,6 @@ def _(mo):
     smoothing = mo.ui.checkbox(label="smooth spectra with gaussian filter", value=False)
     spec_ranges = mo.ui.checkbox(label="customize axis bounds")
     spec_int = mo.ui.checkbox(label="make interactive")
-
-
 
     pan1_xrange = mo.ui.text(label=r"top", value="3550, 10450")
     pan2_xrange = mo.ui.text(label=r"left", value="6523, 6603")
@@ -527,9 +586,13 @@ def _(
     spec_ranges,
 ):
     if len(allstar_select):
-        spec_color_prompt = mo.hstack([spec_color, spec_cmap, smoothing, spec_int, spec_ranges], justify="start", gap=2)
+        spec_color_prompt = mo.hstack(
+            [spec_color, spec_cmap, smoothing, spec_int, spec_ranges],
+            justify="start",
+            gap=2,
+        )
     else:
-        spec_color_prompt = mo.md('')
+        spec_color_prompt = mo.md("")
 
     spec_color_prompt
     return
@@ -581,7 +644,7 @@ def _(
             gap=2,
         )
     else:
-        pan_bounds = mo.md('')
+        pan_bounds = mo.md("")
 
     pan_bounds
     return
@@ -672,7 +735,7 @@ def _(
 ):
     if len(allstar_select):
 
-        fig = plt.figure(figsize=(10,6), constrained_layout=True)
+        fig = plt.figure(figsize=(10, 6), constrained_layout=True)
 
         gs = fig.add_gridspec(2, 3)
 
@@ -699,7 +762,11 @@ def _(
 
                 spec_ax.plot(
                     ax_lam,
-                    gaussian_filter1d(flux_sel[spec_i][ax_ix], sigma=3) if (smoothing.value) else flux_sel[spec_i][ax_ix],
+                    (
+                        gaussian_filter1d(flux_sel[spec_i][ax_ix], sigma=3)
+                        if (smoothing.value)
+                        else flux_sel[spec_i][ax_ix]
+                    ),
                     lw=0.5,
                     color=color,
                 )
@@ -714,15 +781,14 @@ def _(
         ax3.set_ylim(pan3_ymin, pan3_ymax)
         ax4.set_ylim(pan4_ymin, pan4_ymax)
 
-
-
-
-        n_stars = len(np.unique(allstar_so['sdss_id']))
+        n_stars = len(np.unique(allstar_so["sdss_id"]))
         n_spectra = len(allstar_so)
         tit_str_left = f"{n_stars:,} stars" if n_stars > 1 else f"{n_stars} star"
-        tit_str_right = f"{n_spectra:,} spectra" if n_spectra > 1 else f"{n_spectra} spectrum"
-        ax1.set_title(tit_str_left, loc='left', fontsize=16)
-        ax1.set_title(tit_str_right, loc='right', fontsize=16)
+        tit_str_right = (
+            f"{n_spectra:,} spectra" if n_spectra > 1 else f"{n_spectra} spectrum"
+        )
+        ax1.set_title(tit_str_left, loc="left", fontsize=16)
+        ax1.set_title(tit_str_right, loc="right", fontsize=16)
 
         fig.supylabel("flux / continuum", fontsize=14)
         ax3.set_xlabel(r"$\lambda\ (\AA)$", fontsize=14)
@@ -732,8 +798,15 @@ def _(
             spec_ax.tick_params(axis="both", labelsize=12)
 
         if spec_int.value:
-            specfig = mo.vstack([mo.md('To zoom, select the 🔍 emoji below the figure and click and drag in any of the panels.'), 
-                                 mo.mpl.interactive(fig)], gap=2)
+            specfig = mo.vstack(
+                [
+                    mo.md(
+                        "To zoom, select the 🔍 emoji below the figure and click and drag in any of the panels."
+                    ),
+                    mo.mpl.interactive(fig),
+                ],
+                gap=2,
+            )
         else:
             specfig = mo.hstack([fig], justify="center")
 
@@ -747,9 +820,11 @@ def _(
 @app.cell(hide_code=True)
 def _(allstar_select, mo):
     if len(allstar_select):
-        spec_df_display_check = mo.ui.checkbox(label=r"display `mwmAllStar-0.8.1.fits` information for selected subset")
+        spec_df_display_check = mo.ui.checkbox(
+            label=r"display `mwmAllStar-0.8.1.fits` information for selected subset"
+        )
     else:
-        spec_df_display_check = mo.md('')
+        spec_df_display_check = mo.md("")
 
     spec_df_display_check
     return (spec_df_display_check,)
@@ -757,16 +832,62 @@ def _(allstar_select, mo):
 
 @app.cell(hide_code=True)
 def _():
-    allstar_cols = ['sdss_id', 'gaia_dr3_source_id', 'ra', 'dec', 'l', 'b', 'plx', 'e_plx',
-           'pmra', 'e_pmra', 'pmde', 'e_pmde', 'gaia_v_rad', 'gaia_e_v_rad',
-           'g_mag', 'bp_mag', 'rp_mag', 'j_mag', 'h_mag', 'k_mag', 'w1_mag',
-           'w2_mag', 'telescope', 'n_good_visits', 'v_rad', 'e_v_rad', 'std_v_rad',
-           'median_e_v_rad', 'xcsao_teff', 'xcsao_e_teff', 'xcsao_logg',
-           'xcsao_e_logg', 'xcsao_fe_h', 'xcsao_e_fe_h', 'xcsao_meanrxc', 'snr',
-           'zwarning_flags', 'nmf_rchi2', 'nmf_flags', 'ix_spectrum',
-           'HR24_cluster_name', 'HR24_mem_prob', 'RUWE', 'teff', 'e_teff', 'logg',
-           'e_logg', 'fe_h', 'e_fe_h', 'result_flags', 'flag_warn', 'flag_bad',
-           'bn_v_r', 'e_bn_v_r']
+    allstar_cols = [
+        "sdss_id",
+        "gaia_dr3_source_id",
+        "ra",
+        "dec",
+        "l",
+        "b",
+        "plx",
+        "e_plx",
+        "pmra",
+        "e_pmra",
+        "pmde",
+        "e_pmde",
+        "gaia_v_rad",
+        "gaia_e_v_rad",
+        "g_mag",
+        "bp_mag",
+        "rp_mag",
+        "j_mag",
+        "h_mag",
+        "k_mag",
+        "w1_mag",
+        "w2_mag",
+        "telescope",
+        "n_good_visits",
+        "v_rad",
+        "e_v_rad",
+        "std_v_rad",
+        "median_e_v_rad",
+        "xcsao_teff",
+        "xcsao_e_teff",
+        "xcsao_logg",
+        "xcsao_e_logg",
+        "xcsao_fe_h",
+        "xcsao_e_fe_h",
+        "xcsao_meanrxc",
+        "snr",
+        "zwarning_flags",
+        "nmf_rchi2",
+        "nmf_flags",
+        "ix_spectrum",
+        "HR24_cluster_name",
+        "HR24_mem_prob",
+        "RUWE",
+        "teff",
+        "e_teff",
+        "logg",
+        "e_logg",
+        "fe_h",
+        "e_fe_h",
+        "result_flags",
+        "flag_warn",
+        "flag_bad",
+        "bn_v_r",
+        "e_bn_v_r",
+    ]
     return (allstar_cols,)
 
 
@@ -775,14 +896,16 @@ def _(allstar_cols, allstar_so, mo, spec_df_display_check):
     if spec_df_display_check.value:
         spec_df = allstar_so[allstar_cols]
     else:
-        spec_df = mo.md('')
+        spec_df = mo.md("")
     spec_df
     return
 
 
 @app.cell(hide_code=True)
 def _(cluster_name_val, mo):
-    outfilename = mo.ui.text(label="output file name:", value=f"dr20_boss_{cluster_name_val}")
+    outfilename = mo.ui.text(
+        label="output file name:", value=f"dr20_boss_{cluster_name_val}"
+    )
     return (outfilename,)
 
 
@@ -799,7 +922,9 @@ def _(cluster_name, mo, outfilename):
         label=f"save spectra to `{outfile}`&nbsp;&nbsp;💾"
     )
 
-    download_md_body = mo.md("After saving, click the file tree icon in the top left of this page and download your file.")
+    download_md_body = mo.md(
+        "After saving, click the file tree icon in the top left of this page and download your file."
+    )
     return download_md_body, outfile, save_spectra_button, save_subset_option
 
 
@@ -835,36 +960,79 @@ def _(
                 with h5py.File(outfile_path, "w") as outfile_f:
                     if save_subset_option.value == f"all {cluster_name.value} members":
 
-                        allstar_allmem = allstar_hmem.loc[allstar_hmem.HR24_cluster_name==cluster_name_val]
-                        ix_spec_allmem = allstar_allmem.ix_spectrum.values                                    
+                        allstar_allmem = allstar_hmem.loc[
+                            allstar_hmem.HR24_cluster_name == cluster_name_val
+                        ]
+                        ix_spec_allmem = allstar_allmem.ix_spectrum.values
 
                         allstar_rec = allstar_allmem.assign(
-                                                        telescope=lambda df: df["telescope"].astype("S6"),
-                                                        HR24_cluster_name=lambda df: df["HR24_cluster_name"].astype("S32")
-                                                    ).to_records(index=False)
+                            telescope=lambda df: df["telescope"].astype("S6"),
+                            HR24_cluster_name=lambda df: df["HR24_cluster_name"].astype(
+                                "S32"
+                            ),
+                        ).to_records(index=False)
 
-                        outfile_f.create_dataset("/allstar", data=allstar_rec[allstar_cols])
+                        outfile_f.create_dataset(
+                            "/allstar", data=allstar_rec[allstar_cols]
+                        )
                         outfile_f.create_dataset("/spectra/wavelength", data=wavelength)
-                        outfile_f.create_dataset("/spectra/flux", data=flux[ix_spec_allmem], compression="gzip")
-                        outfile_f.create_dataset("/spectra/ivar", data=ivar[ix_spec_allmem], compression="gzip")
-                        outfile_f.create_dataset("/spectra/nmf_rectified_model_flux", data=nmf[ix_spec_allmem], compression="gzip")
-                        outfile_f.create_dataset("/spectra/continuum", data=continuum[ix_spec_allmem], compression="gzip")
+                        outfile_f.create_dataset(
+                            "/spectra/flux",
+                            data=flux[ix_spec_allmem],
+                            compression="gzip",
+                        )
+                        outfile_f.create_dataset(
+                            "/spectra/ivar",
+                            data=ivar[ix_spec_allmem],
+                            compression="gzip",
+                        )
+                        outfile_f.create_dataset(
+                            "/spectra/nmf_rectified_model_flux",
+                            data=nmf[ix_spec_allmem],
+                            compression="gzip",
+                        )
+                        outfile_f.create_dataset(
+                            "/spectra/continuum",
+                            data=continuum[ix_spec_allmem],
+                            compression="gzip",
+                        )
                         savemessage = mo.md(f"Done saving to `{outfile}` ✅ ")
                     else:
                         if len(allstar_select):
                             ix_spec_select = allstar_select.ix_spectrum.values
                             allstar_rec = allstar_select.assign(
-                                                        telescope=lambda df: df["telescope"].astype("S6"),
-                                                        HR24_cluster_name=lambda df: df["HR24_cluster_name"].astype("S32")
-                                                    ).to_records(index=False)
+                                telescope=lambda df: df["telescope"].astype("S6"),
+                                HR24_cluster_name=lambda df: df[
+                                    "HR24_cluster_name"
+                                ].astype("S32"),
+                            ).to_records(index=False)
 
-                            outfile_f.create_dataset("/allstar", data=allstar_rec[allstar_cols])
-                            outfile_f.create_dataset("/spectra/wavelength", data=wavelength)
-                            outfile_f.create_dataset("/spectra/flux", data=flux[ix_spec_select], compression="gzip")
-                            outfile_f.create_dataset("/spectra/ivar", data=ivar[ix_spec_select], compression="gzip")
-                            outfile_f.create_dataset("/spectra/nmf_rectified_model_flux", data=nmf[ix_spec_select], compression="gzip")
-                            outfile_f.create_dataset("/spectra/continuum", data=continuum[ix_spec_select], compression="gzip")
-
+                            outfile_f.create_dataset(
+                                "/allstar", data=allstar_rec[allstar_cols]
+                            )
+                            outfile_f.create_dataset(
+                                "/spectra/wavelength", data=wavelength
+                            )
+                            outfile_f.create_dataset(
+                                "/spectra/flux",
+                                data=flux[ix_spec_select],
+                                compression="gzip",
+                            )
+                            outfile_f.create_dataset(
+                                "/spectra/ivar",
+                                data=ivar[ix_spec_select],
+                                compression="gzip",
+                            )
+                            outfile_f.create_dataset(
+                                "/spectra/nmf_rectified_model_flux",
+                                data=nmf[ix_spec_select],
+                                compression="gzip",
+                            )
+                            outfile_f.create_dataset(
+                                "/spectra/continuum",
+                                data=continuum[ix_spec_select],
+                                compression="gzip",
+                            )
 
                             savemessage = mo.md(f"Done saving to `{outfile}` ✅ ")
 
@@ -970,23 +1138,31 @@ def _(mo, outfilename):
     """
     )
 
-    access_md = mo.vstack([access_md_filename, access_md_body1, access_md_code, access_md_body2], gap=0)
+    access_md = mo.vstack(
+        [access_md_filename, access_md_body1, access_md_code, access_md_body2], gap=0
+    )
     return (access_md,)
 
 
 @app.cell(hide_code=True)
 def _(access_md, download_md, mo):
-    mo.accordion({'<h2 style="text-align: left; font-weight: bold;"> Download the spectra </h2>': download_md,
-                  '<h2 style="text-align: left; font-weight: bold;"> Access the spectra </h2>': access_md},
-                 multiple=True)
+    mo.accordion(
+        {
+            '<h2 style="text-align: left; font-weight: bold;"> Download the spectra </h2>': download_md,
+            '<h2 style="text-align: left; font-weight: bold;"> Access the spectra </h2>': access_md,
+        },
+        multiple=True,
+    )
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     Please send questions/issues/feedback about this notebook to Kayvon Sharifi (ksharifi1@gsu.edu)
-    """)
+    """
+    )
     return
 
 
