@@ -105,7 +105,8 @@ def _():
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     <div style="display: flex; align-items: center; justify-content: center; position: relative; height: 80px; width: 100%;">
         <img src="https://www.sdss.org/wp-content/uploads/2022/09/sdss-new-logo-72dpi.png"
              style="height: 72px; position: absolute; right: 0;">
@@ -117,7 +118,8 @@ def _(mo):
     </div>
 
     </div>
-    """)
+    """
+    )
     return
 
 
@@ -651,11 +653,13 @@ def _(catalog, hclu, hclu_display_cols, vbclu, vbclu_display_cols):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     <h2 style="text-align: left; font-weight: bold;"> Plot and Select </h2>
 
     To view the spectra, make a box selection by clicking and dragging on the plot, or hold `shift` while doing so to make a lasso selection.
-    """)
+    """
+    )
     return
 
 
@@ -1253,12 +1257,13 @@ def _(
 
         n_stars = len(np.unique(allstar_so["sdss_id"]))
         n_spectra = len(allstar_so)
-        tit_str_left = f"{n_stars:,} stars" if n_stars > 1 else f"{n_stars} star"
-        tit_str_right = (
-            f"{n_spectra:,} spectra" if n_spectra > 1 else f"{n_spectra} spectrum"
+        tit_str_stars = f"{n_stars:,} stars" if n_stars > 1 else f"{n_stars} star"
+        tit_str_spectra = (
+            f" {n_spectra:,} spectra" if n_spectra > 1 else f" {n_spectra} spectrum"
         )
+        tit_str_left = "observed"
         ax1.set_title(tit_str_left, loc="left", fontsize=16)
-        ax1.set_title(tit_str_right, loc="right", fontsize=16)
+        ax1.set_title(tit_str_stars + tit_str_spectra, loc="right", fontsize=16)
 
         fig.supylabel("flux / continuum", fontsize=14)
         ax3.set_xlabel(r"$\lambda\ (\AA)$", fontsize=14)
@@ -1290,33 +1295,21 @@ def _(
 @app.cell(hide_code=True)
 def _(allstar_select, mo):
     if len(allstar_select):
-        fmf_display_check = mo.ui.checkbox(label="display forward-modeled CLAM spectra")
-        resid_display_check = mo.ui.checkbox(
-            label="display CLAM - observed residual spectra"
-        )
         spec_df_display_check = mo.ui.checkbox(
             label=r"display `mwmAllStar-0.8.1.fits` information for selected subset"
         )
     else:
-        fmf_display_check = mo.md("")
-        resid_display_check = mo.md("")
         spec_df_display_check = mo.md("")
-    return fmf_display_check, resid_display_check, spec_df_display_check
-
-
-@app.cell(hide_code=True)
-def _(fmf_display_check):
-    fmf_display_check
-    return
+    return (spec_df_display_check,)
 
 
 @app.cell(hide_code=True)
 def _(
+    allstar_select,
     allstar_so,
     ax_ixs,
     ax_lams,
     catalog,
-    fmf_display_check,
     fmf_h,
     fmf_vb,
     mo,
@@ -1341,7 +1334,7 @@ def _(
     spec_color_cmap,
     spec_int,
 ):
-    if fmf_display_check.value:
+    if len(allstar_select):
 
         fig_fmf = plt.figure(figsize=(10, 6), constrained_layout=True)
 
@@ -1397,6 +1390,8 @@ def _(
         )
         ax1_fmf.set_title(tit_str_right_fmf, loc="right", fontsize=16)
 
+        ax1_fmf.set_title("CLAM", loc="left", fontsize=16)
+
         fig_fmf.supylabel("forward-modeled flux", fontsize=14)
         ax3_fmf.set_xlabel(r"$\lambda\ (\AA)$", fontsize=14)
 
@@ -1418,13 +1413,8 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(resid_display_check):
-    resid_display_check
-    return
-
-
-@app.cell(hide_code=True)
 def _(
+    allstar_select,
     allstar_so,
     ax_ixs,
     ax_lams,
@@ -1444,11 +1434,10 @@ def _(
     pan4_xmax,
     pan4_xmin,
     plt,
-    resid_display_check,
     spec_color_cmap,
     spec_int,
 ):
-    if resid_display_check.value:
+    if len(allstar_select):
 
         fig_resid = plt.figure(figsize=(10, 6), constrained_layout=True)
 
@@ -1492,10 +1481,10 @@ def _(
         ax3_resid.set_xlim(pan3_xmin, pan3_xmax)
         ax4_resid.set_xlim(pan4_xmin, pan4_xmax)
 
-        ax1_resid.set_ylim(-2,2)
-        ax2_resid.set_ylim(-2,2)
-        ax3_resid.set_ylim(-2,2)
-        ax4_resid.set_ylim(-2,2)
+        ax1_resid.set_ylim(-2, 2)
+        ax2_resid.set_ylim(-2, 2)
+        ax3_resid.set_ylim(-2, 2)
+        ax4_resid.set_ylim(-2, 2)
 
         tit_str_right_resid = (
             f"{n_spectra_resid:,} residual spectra"
@@ -1503,6 +1492,7 @@ def _(
             else f"{n_spectra_resid} residual spectrum"
         )
         ax1_resid.set_title(tit_str_right_resid, loc="right", fontsize=16)
+        ax1_resid.set_title("CLAM - observed", loc="left", fontsize=16)
 
         fig_resid.supylabel("forward-modeled - observed flux", fontsize=14)
         ax3_resid.set_xlabel(r"$\lambda\ (\AA)$", fontsize=14)
@@ -1855,9 +1845,11 @@ def _(access_md, mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     Please send questions/issues/feedback about this notebook to Kayvon Sharifi (ksharifi1@gsu.edu)
-    """)
+    """
+    )
     return
 
 
