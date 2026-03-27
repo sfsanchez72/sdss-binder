@@ -62,18 +62,44 @@ def _():
                 )
         return df
 
+    def to_recarray_safe(df):
+        """
+        Converts a DataFrame to np.recarray suitable for HDF5:
+        - numeric columns stay numeric
+        - text/bytes columns become fixed-width bytes
+        """
+        df_new = df.copy()
+        rec_dtype = []
+        for col in df_new.columns:
+            vals = df_new[col]
+            # Check type
+            if np.issubdtype(vals.dtype, np.number):
+                # numeric: keep dtype
+                rec_dtype.append((col, vals.dtype))
+            else:
+                # treat as text-like: fillna, decode bytes, convert to str
+                s = vals.fillna("").apply(
+                    lambda x: x.decode("utf-8") if isinstance(x, bytes) else str(x)
+                )
+                # determine max length + padding
+                n = s.str.len().max() + 4
+                rec_dtype.append((col, f"S{n}"))
+                df_new[col] = s.astype(f"S{n}")
+        # convert to recarray
+        return df_new.to_records(index=False)
+
     return (
         LogNorm,
         Normalize,
         Path,
         decode_hdf5_bytes,
-        fitsio,
         gaussian_filter1d,
         h5py,
         mo,
         np,
         pd,
         plt,
+        to_recarray_safe,
     )
 
 
@@ -89,9 +115,6 @@ def _(mo):
       <h1 style="font-size: 30px; margin-bottom: 5px; font-weight: 500;">
         MWM DR20 BOSS Star Cluster Explorer
       </h1>
-      <p style="font-size: 16px; margin-top: 0; font-weight: 500;">
-        Hunt & Reffert (2024) members with BOSS spectra
-      </p>
     </div>
 
     </div>
@@ -101,69 +124,489 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(decode_hdf5_bytes, fitsio, h5py, mo, pd):
+def _(decode_hdf5_bytes, h5py, mo, np, pd):
     with mo.status.spinner("Loading spectra...") as load_spinner:
 
-        with h5py.File("data/sandbox/dr20_boss_clusters.h5", "r") as f:
+        with h5py.File("data/sandbox/dr20_boss_clusters_CLAM.h5", "r") as f:
 
-            hclu = f["/hclu"][()]
-            allstar_hmem = f["/allstar_mem"][()]
-            flux = f["/spectra/flux"][:]
-            ivar = f["/spectra/ivar"][:]
-            nmf = f["/spectra/nmf_rectified_model_flux"][:]
-            continuum = f["/spectra/continuum"][:]
+            hclu = f["/clusters_HR24"][()]
+            hmem = f["/members_HR24"][()]
+            vbclu = f["/clusters_VB21"][()]
+            vbmem = f["/members_VB21"][()]
             wavelength = f["/spectra/wavelength"][()]
 
-        foc = flux / continuum
+            foc_h = f["/spectra/HR24/flux_over_continuum"][:]
+            fmf_h = f["/spectra/HR24/forward_model_flux"][:]
+            flux_h = f["/spectra/HR24/flux"][:]
+            ivar_h = f["/spectra/HR24/ivar"][:]
+            nmf_h = f["/spectra/HR24/nmf_rectified_model_flux"][:]
+            continuum_h = f["/spectra/HR24/continuum"][:]
+            param_cov_h = f["/spectra/HR24/param_covariance"][:]
+
+            foc_vb = f["/spectra/VB21/flux_over_continuum"][:]
+            fmf_vb = f["/spectra/VB21/forward_model_flux"][:]
+            flux_vb = f["/spectra/VB21/flux"][:]
+            ivar_vb = f["/spectra/VB21/ivar"][:]
+            nmf_vb = f["/spectra/VB21/nmf_rectified_model_flux"][:]
+            continuum_vb = f["/spectra/VB21/continuum"][:]
+            param_cov_vb = f["/spectra/VB21/param_covariance"][:]
 
         hclu = decode_hdf5_bytes(pd.DataFrame(hclu))
-        allstar_hmem = decode_hdf5_bytes(pd.DataFrame(allstar_hmem))
+        hmem = decode_hdf5_bytes(pd.DataFrame(hmem))
+        vbclu = decode_hdf5_bytes(pd.DataFrame(vbclu))
+        vbmem = decode_hdf5_bytes(pd.DataFrame(vbmem))
 
-        hclu = hclu.sort_values("N_stars_w_BOSS_spectrum", ascending=False).reset_index(
-            drop=True
-        )
-
-        load_spinner.update("Grabbing BOSS Net parameters...")
-
-        bn_path = "data/release/dr20/spectro/astra/0.8.1/summary/astraAllStarBossNet-0.8.1.fits.gz"
-        bn_cols = [
-            "sdss_id",
-            "telescope",
-            "teff",
-            "e_teff",
-            "logg",
-            "e_logg",
-            "fe_h",
-            "e_fe_h",
-            "result_flags",
-            "flag_warn",
-            "flag_bad",
-            "bn_v_r",
-            "e_bn_v_r",
-        ]
-
-        with fitsio.FITS(bn_path) as f:
-
-            bn = pd.DataFrame(f[1].read(columns=bn_cols))
-
-        allstar_hmem = allstar_hmem.merge(bn, on=["sdss_id", "telescope"], how="inner")
-        del bn
-    return allstar_hmem, continuum, flux, foc, hclu, ivar, nmf, wavelength
+    hmem["ix_spectrum"] = np.arange(len(hmem))
+    vbmem["ix_spectrum"] = np.arange(len(vbmem))
+    return (
+        continuum_h,
+        continuum_vb,
+        flux_h,
+        flux_vb,
+        fmf_h,
+        fmf_vb,
+        foc_h,
+        foc_vb,
+        hclu,
+        hmem,
+        ivar_h,
+        ivar_vb,
+        nmf_h,
+        nmf_vb,
+        param_cov_h,
+        param_cov_vb,
+        vbclu,
+        vbmem,
+        wavelength,
+    )
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-    <h2 style="text-align: left; font-weight: bold;"> Clusters and Moving Groups with DR20 BOSS Spectra </h2>
-    """
+    catalog_options = [
+        "Hunt & Reffert (2024)",
+        "Vasiliev & Baumgardt (2021) (more complete for globulars)",
+    ]
+    catalog_prompt = "Choose a cluster member catalog:"
+    catalog = mo.ui.radio(
+        options=catalog_options,
+        value="Hunt & Reffert (2024)",
+        label=catalog_prompt,
+        inline=True,
     )
+    catalog
+    return (catalog,)
+
+
+@app.cell(hide_code=True)
+def _(catalog, mo):
+    if catalog.value == "Hunt & Reffert (2024)":
+        wspectra = mo.md(
+            r"""
+    <h2 style="text-align: left; font-weight: bold;"> Hunt & Reffert (2024) Clusters and Moving Groups with DR20 BOSS Spectra </h2>
+    """
+        )
+    else:
+        wspectra = mo.md(
+            r"""
+    <h2 style="text-align: left; font-weight: bold;"> Vasiliev & Baumgardt (2021) Globular Clusters with DR20 BOSS Spectra </h2>
+    """
+        )
+
+    wspectra
+
     return
 
 
 @app.cell(hide_code=True)
-def _(hclu, np):
-    hclu["Association Name"] = hclu.Name.str.replace("_", " ")
+def _(catalog):
+    if catalog.value == "Hunt & Reffert (2024)":
+
+        allstar_cols = [
+            "sdss_id",
+            "sdss4_apogee_id",
+            "gaia_dr2_source_id",
+            "gaia_dr3_source_id",
+            "tic_v8_id",
+            "healpix",
+            "lead",
+            "version_id",
+            "catalogid",
+            "catalogid21",
+            "catalogid25",
+            "catalogid31",
+            "n_associated",
+            "n_neighborhood",
+            "crossmatch_flags",
+            "sdss4_apogee_target1_flags",
+            "sdss4_apogee_target2_flags",
+            "sdss4_apogee2_target1_flags",
+            "sdss4_apogee2_target2_flags",
+            "sdss4_apogee2_target3_flags",
+            "sdss4_apogee_member_flags",
+            "sdss4_apogee_extra_target_flags",
+            "sdss5_dr19_apogee_flag",
+            "ra",
+            "dec",
+            "l",
+            "b",
+            "plx",
+            "e_plx",
+            "pmra",
+            "e_pmra",
+            "pmde",
+            "e_pmde",
+            "gaia_v_rad",
+            "gaia_e_v_rad",
+            "g_mag",
+            "bp_mag",
+            "rp_mag",
+            "j_mag",
+            "e_j_mag",
+            "h_mag",
+            "e_h_mag",
+            "k_mag",
+            "e_k_mag",
+            "ph_qual",
+            "bl_flg",
+            "cc_flg",
+            "w1_mag",
+            "e_w1_mag",
+            "w1_flux",
+            "w1_dflux",
+            "w1_frac",
+            "w2_mag",
+            "e_w2_mag",
+            "w2_flux",
+            "w2_dflux",
+            "w2_frac",
+            "w1uflags",
+            "w2uflags",
+            "w1aflags",
+            "w2aflags",
+            "mag4_5",
+            "d4_5m",
+            "rms_f4_5",
+            "sqf_4_5",
+            "mf4_5",
+            "csf",
+            "zgr_teff",
+            "zgr_e_teff",
+            "zgr_logg",
+            "zgr_e_logg",
+            "zgr_fe_h",
+            "zgr_e_fe_h",
+            "zgr_e",
+            "zgr_e_e",
+            "zgr_plx",
+            "zgr_e_plx",
+            "zgr_teff_confidence",
+            "zgr_logg_confidence",
+            "zgr_fe_h_confidence",
+            "zgr_ln_prior",
+            "zgr_chi2",
+            "zgr_quality_flags",
+            "r_med_geo",
+            "r_lo_geo",
+            "r_hi_geo",
+            "r_med_photogeo",
+            "r_lo_photogeo",
+            "r_hi_photogeo",
+            "bailer_jones_flags",
+            "ebv",
+            "e_ebv",
+            "ebv_flags",
+            "ebv_zhang_2023",
+            "e_ebv_zhang_2023",
+            "ebv_sfd",
+            "e_ebv_sfd",
+            "ebv_rjce_glimpse",
+            "e_ebv_rjce_glimpse",
+            "ebv_rjce_allwise",
+            "e_ebv_rjce_allwise",
+            "ebv_bayestar_2019",
+            "e_ebv_bayestar_2019",
+            "ebv_edenhofer_2023",
+            "e_ebv_edenhofer_2023",
+            "c_star",
+            "u_jkc_mag",
+            "u_jkc_mag_flag",
+            "b_jkc_mag",
+            "b_jkc_mag_flag",
+            "v_jkc_mag",
+            "v_jkc_mag_flag",
+            "r_jkc_mag",
+            "r_jkc_mag_flag",
+            "i_jkc_mag",
+            "i_jkc_mag_flag",
+            "u_sdss_mag",
+            "u_sdss_mag_flag",
+            "g_sdss_mag",
+            "g_sdss_mag_flag",
+            "r_sdss_mag",
+            "r_sdss_mag_flag",
+            "i_sdss_mag",
+            "i_sdss_mag_flag",
+            "z_sdss_mag",
+            "z_sdss_mag_flag",
+            "y_ps1_mag",
+            "y_ps1_mag_flag",
+            "n_boss_visits",
+            "boss_min_mjd",
+            "boss_max_mjd",
+            "n_apogee_visits",
+            "apogee_min_mjd",
+            "apogee_max_mjd",
+            "created",
+            "modified",
+            "spectrum_pk",
+            "source",
+            "release",
+            "filetype",
+            "v_astra",
+            "run2d",
+            "telescope",
+            "min_mjd",
+            "max_mjd",
+            "n_visits",
+            "n_good_visits",
+            "n_good_rvs",
+            "v_rad",
+            "e_v_rad",
+            "std_v_rad",
+            "median_e_v_rad",
+            "xcsao_teff",
+            "xcsao_e_teff",
+            "xcsao_logg",
+            "xcsao_e_logg",
+            "xcsao_fe_h",
+            "xcsao_e_fe_h",
+            "xcsao_meanrxc",
+            "snr",
+            "gri_gaia_transform_flags",
+            "zwarning_flags",
+            "nmf_rchi2",
+            "nmf_flags",
+            "HR24_cluster_name",
+            "HR24_mem_prob",
+            "ruwe",
+            "bn_teff",
+            "bn_e_teff",
+            "bn_logg",
+            "bn_e_logg",
+            "bn_fe_h",
+            "bn_e_fe_h",
+            "bn_result_flags",
+            "bn_flag_warn",
+            "bn_flag_bad",
+            "bn_v_r",
+            "e_bn_v_r",
+            "clam_alpha_m",
+            "clam_flags",
+            "clam_fe_h",
+            "clam_flag_bad",
+            "clam_flag_warn",
+            "clam_logg",
+            "clam_rchi2",
+            "clam_teff",
+            "ix_in_blockfile",
+        ]
+    else:
+        allstar_cols = [
+            "sdss_id",
+            "sdss4_apogee_id",
+            "gaia_dr2_source_id",
+            "gaia_dr3_source_id",
+            "tic_v8_id",
+            "healpix",
+            "lead",
+            "version_id",
+            "catalogid",
+            "catalogid21",
+            "catalogid25",
+            "catalogid31",
+            "n_associated",
+            "n_neighborhood",
+            "crossmatch_flags",
+            "sdss4_apogee_target1_flags",
+            "sdss4_apogee_target2_flags",
+            "sdss4_apogee2_target1_flags",
+            "sdss4_apogee2_target2_flags",
+            "sdss4_apogee2_target3_flags",
+            "sdss4_apogee_member_flags",
+            "sdss4_apogee_extra_target_flags",
+            "sdss5_dr19_apogee_flag",
+            "ra",
+            "dec",
+            "l",
+            "b",
+            "plx",
+            "e_plx",
+            "pmra",
+            "e_pmra",
+            "pmde",
+            "e_pmde",
+            "gaia_v_rad",
+            "gaia_e_v_rad",
+            "g_mag",
+            "bp_mag",
+            "rp_mag",
+            "j_mag",
+            "e_j_mag",
+            "h_mag",
+            "e_h_mag",
+            "k_mag",
+            "e_k_mag",
+            "ph_qual",
+            "bl_flg",
+            "cc_flg",
+            "w1_mag",
+            "e_w1_mag",
+            "w1_flux",
+            "w1_dflux",
+            "w1_frac",
+            "w2_mag",
+            "e_w2_mag",
+            "w2_flux",
+            "w2_dflux",
+            "w2_frac",
+            "w1uflags",
+            "w2uflags",
+            "w1aflags",
+            "w2aflags",
+            "mag4_5",
+            "d4_5m",
+            "rms_f4_5",
+            "sqf_4_5",
+            "mf4_5",
+            "csf",
+            "zgr_teff",
+            "zgr_e_teff",
+            "zgr_logg",
+            "zgr_e_logg",
+            "zgr_fe_h",
+            "zgr_e_fe_h",
+            "zgr_e",
+            "zgr_e_e",
+            "zgr_plx",
+            "zgr_e_plx",
+            "zgr_teff_confidence",
+            "zgr_logg_confidence",
+            "zgr_fe_h_confidence",
+            "zgr_ln_prior",
+            "zgr_chi2",
+            "zgr_quality_flags",
+            "r_med_geo",
+            "r_lo_geo",
+            "r_hi_geo",
+            "r_med_photogeo",
+            "r_lo_photogeo",
+            "r_hi_photogeo",
+            "bailer_jones_flags",
+            "ebv",
+            "e_ebv",
+            "ebv_flags",
+            "ebv_zhang_2023",
+            "e_ebv_zhang_2023",
+            "ebv_sfd",
+            "e_ebv_sfd",
+            "ebv_rjce_glimpse",
+            "e_ebv_rjce_glimpse",
+            "ebv_rjce_allwise",
+            "e_ebv_rjce_allwise",
+            "ebv_bayestar_2019",
+            "e_ebv_bayestar_2019",
+            "ebv_edenhofer_2023",
+            "e_ebv_edenhofer_2023",
+            "c_star",
+            "u_jkc_mag",
+            "u_jkc_mag_flag",
+            "b_jkc_mag",
+            "b_jkc_mag_flag",
+            "v_jkc_mag",
+            "v_jkc_mag_flag",
+            "r_jkc_mag",
+            "r_jkc_mag_flag",
+            "i_jkc_mag",
+            "i_jkc_mag_flag",
+            "u_sdss_mag",
+            "u_sdss_mag_flag",
+            "g_sdss_mag",
+            "g_sdss_mag_flag",
+            "r_sdss_mag",
+            "r_sdss_mag_flag",
+            "i_sdss_mag",
+            "i_sdss_mag_flag",
+            "z_sdss_mag",
+            "z_sdss_mag_flag",
+            "y_ps1_mag",
+            "y_ps1_mag_flag",
+            "n_boss_visits",
+            "boss_min_mjd",
+            "boss_max_mjd",
+            "n_apogee_visits",
+            "apogee_min_mjd",
+            "apogee_max_mjd",
+            "created",
+            "modified",
+            "spectrum_pk",
+            "source",
+            "release",
+            "filetype",
+            "v_astra",
+            "run2d",
+            "telescope",
+            "min_mjd",
+            "max_mjd",
+            "n_visits",
+            "n_good_visits",
+            "n_good_rvs",
+            "v_rad",
+            "e_v_rad",
+            "std_v_rad",
+            "median_e_v_rad",
+            "xcsao_teff",
+            "xcsao_e_teff",
+            "xcsao_logg",
+            "xcsao_e_logg",
+            "xcsao_fe_h",
+            "xcsao_e_fe_h",
+            "xcsao_meanrxc",
+            "snr",
+            "gri_gaia_transform_flags",
+            "zwarning_flags",
+            "nmf_rchi2",
+            "nmf_flags",
+            "VB21_cluster_name",
+            "VB21_mem_prob",
+            "VB21_qflag",
+            "bn_teff",
+            "bn_e_teff",
+            "bn_logg",
+            "bn_e_logg",
+            "bn_fe_h",
+            "bn_e_fe_h",
+            "bn_result_flags",
+            "bn_flag_warn",
+            "bn_flag_bad",
+            "bn_v_r",
+            "e_bn_v_r",
+            "clam_alpha_m",
+            "clam_flags",
+            "clam_fe_h",
+            "clam_flag_bad",
+            "clam_flag_warn",
+            "clam_logg",
+            "clam_rchi2",
+            "clam_teff",
+            "ix_in_blockfile",
+        ]
+    return (allstar_cols,)
+
+
+@app.cell(hide_code=True)
+def _(hclu, np, vbclu):
+    hclu["HR24 Association Name"] = hclu.Name.str.replace("_", " ")
     hclu["HR24 Age (Myr)"] = np.round(10**hclu.logAge50 / 1e6, 1)
     hclu["HR24 Distance (pc)"] = np.round(hclu.dist50, 1)
     hclu["Number of Members with BOSS Spectrum"] = hclu.N_stars_w_BOSS_spectrum
@@ -177,15 +620,35 @@ def _(hclu, np):
         }
     )
 
-    display_cols = [
-        "Association Name",
+    hclu_display_cols = [
+        "HR24 Association Name",
         "HR24 Association Type",
         "Number of Members with BOSS Spectrum",
         "HR24 Distance (pc)",
         "HR24 Age (Myr)",
     ]
 
-    hclu[display_cols]
+    vbclu["VB21 Globular Cluster Name"] = vbclu.VB21_cluster_name
+    vbclu["Number of Members with BOSS Spectrum"] = vbclu.N_stars_w_BOSS_spectrum
+
+    vbclu_display_cols = [
+        "VB21 Globular Cluster Name",
+        "Number of Members with BOSS Spectrum",
+    ]
+    return hclu_display_cols, vbclu_display_cols
+
+
+@app.cell(hide_code=True)
+def _(catalog, hclu, hclu_display_cols, vbclu, vbclu_display_cols):
+    if catalog.value == "Hunt & Reffert (2024)":
+
+        clu_list = hclu[hclu_display_cols]
+
+    else:
+
+        clu_list = vbclu[vbclu_display_cols]
+
+    clu_list
     return
 
 
@@ -202,30 +665,23 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    column_md = mo.md(
-        r"""
-    `['sdss_id', 'gaia_dr3_source_id', 'ra', 'dec', 'l', 'b', 'plx', 'e_plx', 'pmra', 'e_pmra', 'pmde', 'e_pmde', 'gaia_v_rad', 'gaia_e_v_rad', 'g_mag', 'bp_mag', 'rp_mag', 'j_mag', 'h_mag', 'k_mag', 'w1_mag', 'w2_mag', 'telescope', 'n_good_visits', 'v_rad', 'e_v_rad', 'std_v_rad', 'median_e_v_rad', 'xcsao_teff', 'xcsao_e_teff', 'xcsao_logg', 'xcsao_e_logg', 'xcsao_fe_h', 'xcsao_e_fe_h', 'xcsao_meanrxc', 'snr', 'zwarning_flags', 'nmf_rchi2', 'nmf_flags', 'HR24_cluster_name', 'HR24_mem_prob', 'RUWE', 'teff', 'e_teff', 'logg', 'e_logg', 'fe_h', 'e_fe_h', 'result_flags', 'flag_warn', 'flag_bad', 'bn_v_r', 'e_bn_v_r']`
-
-
-    `['HR24_cluster_name', 'HR24_mem_prob', 'RUWE']` from the [Hunt & Reffert (2024) catalog](https://ui.adsabs.harvard.edu/abs/2024yCat..36860042H/abstract)
-
-    `['teff', 'e_teff', 'logg', 'e_logg', 'fe_h', 'e_fe_h', 'result_flags', 'flag_warn', 'flag_bad', 'bn_v_r', 'e_bn_v_r']` from `astraAllStarBossNet-0.8.1.fits`
-
-    All other columns from `mwmAllStar-0.8.1.fits`
-
-    """
-    )
+def _(allstar_cols, mo):
+    column_md = mo.md(f"`{str(allstar_cols)}`")
 
     mo.accordion(
         {'<h4 style="text-align: left;"> See available columns </h4>': column_md}
     )
-    return
+    return (column_md,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    cluster_name = mo.ui.text(label="cluster name:", value="NGC 2516")
+def _(catalog, mo):
+    if catalog.value == "Hunt & Reffert (2024)":
+        clu_name_val = "NGC 2516"
+    else:
+        clu_name_val = "NGC 104, 47Tuc"
+
+    cluster_name = mo.ui.text(label="cluster name:", value=clu_name_val)
     x_col = mo.ui.text_area(value="g_mag - rp_mag", label="x")
     y_col = mo.ui.text_area(value="g_mag + 5*np.log10(plx/100)", label="y")
 
@@ -269,6 +725,7 @@ def _(mo):
         gap=2,
     )
     return (
+        clu_name_val,
         cluster_name,
         colorbar,
         cuts,
@@ -311,34 +768,39 @@ def _(colorbar, mo):
 
 
 @app.cell(hide_code=True)
-def _(cluster_name):
-    cluster_name_val = cluster_name.value.replace(" ", "_").strip()
+def _(catalog, clu_name_val, cluster_name):
+    if catalog.value == "Hunt & Reffert (2024)":
+        cluster_name_val = cluster_name.value.replace(" ", "_").strip()
+    else:
+        cluster_name_val = clu_name_val
     return (cluster_name_val,)
 
 
 @app.cell(hide_code=True)
-def _(cluster_name_val, hclu):
-    row = hclu.loc[hclu.Name == cluster_name_val].iloc[0]
+def _(catalog, cluster_name_val, hclu):
+    if catalog.value == "Hunt & Reffert (2024)":
 
-    age50_val = 10**row.logAge50 / 1e6
-    age16_val = 10**row.logAge16 / 1e6
-    age84_val = 10**row.logAge84 / 1e6
+        row = hclu.loc[hclu.Name == cluster_name_val].iloc[0]
 
-    age50 = f"{age50_val:,.1f}"
-    age50_16 = f"{(age50_val - age16_val):,.1f}"
-    age84_50 = f"{(age84_val - age50_val):,.1f}"
+        age50_val = 10**row.logAge50 / 1e6
+        age16_val = 10**row.logAge16 / 1e6
+        age84_val = 10**row.logAge84 / 1e6
 
-    age_str = rf"Age (Myr): ${age50}^{{+{age84_50}}}_{{-{age50_16}}}$"
+        age50 = f"{age50_val:,.1f}"
+        age50_16 = f"{(age50_val - age16_val):,.1f}"
+        age84_50 = f"{(age84_val - age50_val):,.1f}"
 
-    dist50_val = row.dist50
-    dist16_val = row.dist16
-    dist84_val = row.dist84
+        age_str = rf"Age (Myr): ${age50}^{{+{age84_50}}}_{{-{age50_16}}}$"
 
-    dist50 = f"{dist50_val:,.1f}"
-    dist50_16 = f"{(dist50_val - dist16_val):,.1f}"
-    dist84_50 = f"{(dist84_val - dist50_val):,.1f}"
+        dist50_val = row.dist50
+        dist16_val = row.dist16
+        dist84_val = row.dist84
 
-    dist_str = rf"Distance (pc): ${dist50}^{{+{dist84_50}}}_{{-{dist50_16}}}$"
+        dist50 = f"{dist50_val:,.1f}"
+        dist50_16 = f"{(dist50_val - dist16_val):,.1f}"
+        dist84_50 = f"{(dist84_val - dist50_val):,.1f}"
+
+        dist_str = rf"Distance (pc): ${dist50}^{{+{dist84_50}}}_{{-{dist50_16}}}$"
     return age_str, dist_str
 
 
@@ -347,7 +809,7 @@ def _(
     LogNorm,
     Normalize,
     age_str,
-    allstar_hmem,
+    catalog,
     cb_cmap,
     cb_col,
     cb_flip,
@@ -361,12 +823,14 @@ def _(
     dist_str,
     flip_x,
     flip_y,
+    hmem,
     log_x,
     log_y,
     mo,
     np,
     observatory,
     plt,
+    vbmem,
     x_col,
     x_label,
     x_range,
@@ -374,9 +838,11 @@ def _(
     y_label,
     y_range,
 ):
-    allstar_hrd = allstar_hmem.loc[
-        allstar_hmem.HR24_cluster_name == cluster_name_val
-    ].copy()
+    if catalog.value == "Hunt & Reffert (2024)":
+        allstar_hrd = hmem.loc[hmem.HR24_cluster_name == cluster_name_val].copy()
+
+    else:
+        allstar_hrd = vbmem.loc[vbmem.VB21_cluster_name == cluster_name_val].copy()
 
     n_stars_hrd = len(np.unique(allstar_hrd["sdss_id"]))
     n_spectra_hrd = len(allstar_hrd)
@@ -485,9 +951,11 @@ def _(
     # hrd_ax.set_aspect('equal', adjustable='datalim')
 
     hrd_tit_str_left = cluster_name.value
-    hrd_tit_str_right = dist_str + "    " + age_str
     hrd_ax.set_title(hrd_tit_str_left, loc="left", fontsize=hrd_fontsize)
-    hrd_ax.set_title(hrd_tit_str_right, loc="right", fontsize=hrd_fontsize)
+
+    if catalog.value == "Hunt & Reffert (2024)":
+        hrd_tit_str_right = dist_str + "    " + age_str
+        hrd_ax.set_title(hrd_tit_str_right, loc="right", fontsize=hrd_fontsize)
 
     hrd = mo.ui.matplotlib(plt.gca(), debounce=True)
 
@@ -545,7 +1013,9 @@ def _(allstar_hrd, hrd):
 def _(mo):
     spec_color = mo.ui.text(value="g_mag - rp_mag", label="color spectra by")
     spec_cmap = mo.ui.text(value="turbo", label="colormap")
-    smoothing = mo.ui.checkbox(label="smooth spectra with gaussian filter", value=False)
+    smoothing = mo.ui.checkbox(
+        label="smooth observed spectra with gaussian filter", value=False
+    )
     spec_ranges = mo.ui.checkbox(label="customize axis bounds")
     spec_int = mo.ui.checkbox(label="make interactive")
 
@@ -708,7 +1178,9 @@ def _(
     allstar_so,
     ax_ixs,
     ax_lams,
-    foc,
+    catalog,
+    foc_h,
+    foc_vb,
     gaussian_filter1d,
     mo,
     np,
@@ -752,7 +1224,11 @@ def _(
 
         ix_spec = allstar_so.ix_spectrum.values
 
-        flux_sel = foc[ix_spec]
+        flux_sel = (
+            foc_h[ix_spec]
+            if catalog.value == "Hunt & Reffert (2024)"
+            else foc_vb[ix_spec]
+        )
 
         for spec_i in reversed(range(len(allstar_so))):
 
@@ -814,81 +1290,252 @@ def _(
         specfig = mo.md("")
 
     specfig
-    return
+    return (spec_color_cmap,)
 
 
 @app.cell(hide_code=True)
 def _(allstar_select, mo):
     if len(allstar_select):
+        fmf_display_check = mo.ui.checkbox(label="display forward-modeled CLAM spectra")
+        resid_display_check = mo.ui.checkbox(
+            label="display CLAM - observed residual spectra"
+        )
         spec_df_display_check = mo.ui.checkbox(
             label=r"display `mwmAllStar-0.8.1.fits` information for selected subset"
         )
     else:
+        fmf_display_check = mo.md("")
+        resid_display_check = mo.md("")
         spec_df_display_check = mo.md("")
+    return fmf_display_check, resid_display_check, spec_df_display_check
 
-    spec_df_display_check
-    return (spec_df_display_check,)
+
+@app.cell
+def _(fmf_display_check):
+    fmf_display_check
+    return
 
 
 @app.cell(hide_code=True)
-def _():
-    allstar_cols = [
-        "sdss_id",
-        "gaia_dr3_source_id",
-        "ra",
-        "dec",
-        "l",
-        "b",
-        "plx",
-        "e_plx",
-        "pmra",
-        "e_pmra",
-        "pmde",
-        "e_pmde",
-        "gaia_v_rad",
-        "gaia_e_v_rad",
-        "g_mag",
-        "bp_mag",
-        "rp_mag",
-        "j_mag",
-        "h_mag",
-        "k_mag",
-        "w1_mag",
-        "w2_mag",
-        "telescope",
-        "n_good_visits",
-        "v_rad",
-        "e_v_rad",
-        "std_v_rad",
-        "median_e_v_rad",
-        "xcsao_teff",
-        "xcsao_e_teff",
-        "xcsao_logg",
-        "xcsao_e_logg",
-        "xcsao_fe_h",
-        "xcsao_e_fe_h",
-        "xcsao_meanrxc",
-        "snr",
-        "zwarning_flags",
-        "nmf_rchi2",
-        "nmf_flags",
-        "ix_spectrum",
-        "HR24_cluster_name",
-        "HR24_mem_prob",
-        "RUWE",
-        "teff",
-        "e_teff",
-        "logg",
-        "e_logg",
-        "fe_h",
-        "e_fe_h",
-        "result_flags",
-        "flag_warn",
-        "flag_bad",
-        "bn_v_r",
-        "e_bn_v_r",
-    ]
-    return (allstar_cols,)
+def _(
+    allstar_so,
+    ax_ixs,
+    ax_lams,
+    catalog,
+    fmf_display_check,
+    fmf_h,
+    fmf_vb,
+    mo,
+    np,
+    pan1_xmax,
+    pan1_xmin,
+    pan1_ymax,
+    pan1_ymin,
+    pan2_xmax,
+    pan2_xmin,
+    pan2_ymax,
+    pan2_ymin,
+    pan3_xmax,
+    pan3_xmin,
+    pan3_ymax,
+    pan3_ymin,
+    pan4_xmax,
+    pan4_xmin,
+    pan4_ymax,
+    pan4_ymin,
+    plt,
+    spec_color_cmap,
+    spec_int,
+):
+    if fmf_display_check.value:
+
+        fig_fmf = plt.figure(figsize=(10, 6), constrained_layout=True)
+
+        gs_fmf = fig_fmf.add_gridspec(2, 3)
+
+        ax1_fmf = fig_fmf.add_subplot(gs_fmf[0, :])
+        ax2_fmf = fig_fmf.add_subplot(gs_fmf[1, 0])
+        ax3_fmf = fig_fmf.add_subplot(gs_fmf[1, 1])
+        ax4_fmf = fig_fmf.add_subplot(gs_fmf[1, 2])
+
+        axes_fmf = [ax1_fmf, ax2_fmf, ax3_fmf, ax4_fmf]
+
+        ix_spec_fmf = allstar_so.ix_spectrum.values
+
+        flux_sel_fmf = (
+            fmf_h[ix_spec_fmf]
+            if catalog.value == "Hunt & Reffert (2024)"
+            else fmf_vb[ix_spec_fmf]
+        )
+
+        n_spectra_fmf = np.sum(~np.all(np.isnan(flux_sel_fmf), axis=1))
+        color_positions_fmf = np.linspace(0, 1, len(allstar_so))
+
+        for spec_i_fmf in reversed(range(len(allstar_so))):
+
+            color_fmf = spec_color_cmap(color_positions_fmf[spec_i_fmf])
+
+            for ax_i_fmf, (ax_ix_fmf, spec_ax_fmf, ax_lam_fmf) in enumerate(
+                zip(ax_ixs, axes_fmf, ax_lams)
+            ):
+
+                spec_ax_fmf.plot(
+                    ax_lam_fmf,
+                    flux_sel_fmf[spec_i_fmf][ax_ix_fmf],
+                    lw=0.5,
+                    color=color_fmf,
+                )
+
+        ax1_fmf.set_xlim(pan1_xmin, pan1_xmax)
+        ax2_fmf.set_xlim(pan2_xmin, pan2_xmax)
+        ax3_fmf.set_xlim(pan3_xmin, pan3_xmax)
+        ax4_fmf.set_xlim(pan4_xmin, pan4_xmax)
+
+        ax1_fmf.set_ylim(pan1_ymin, pan1_ymax)
+        ax2_fmf.set_ylim(pan2_ymin, pan2_ymax)
+        ax3_fmf.set_ylim(pan3_ymin, pan3_ymax)
+        ax4_fmf.set_ylim(pan4_ymin, pan4_ymax)
+
+        tit_str_right_fmf = (
+            f"{n_spectra_fmf:,} forward-modeled spectra"
+            if n_spectra_fmf > 1
+            else f"{n_spectra_fmf} forward-modeled spectrum"
+        )
+        ax1_fmf.set_title(tit_str_right_fmf, loc="right", fontsize=16)
+
+        fig_fmf.supylabel("forward-modeled flux", fontsize=14)
+        ax3_fmf.set_xlabel(r"$\lambda\ (\AA)$", fontsize=14)
+
+        for spec_ax_fmf in axes_fmf:
+            spec_ax_fmf.grid(True, which="both", alpha=0.4, zorder=-100)
+            spec_ax_fmf.tick_params(axis="both", labelsize=12)
+
+        if spec_int.value:
+            specfig_fmf = mo.mpl.interactive(fig_fmf)
+
+        else:
+            specfig_fmf = mo.hstack([fig_fmf], justify="center")
+
+    else:
+        specfig_fmf = mo.md("")
+
+    specfig_fmf
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(resid_display_check):
+    resid_display_check
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    allstar_so,
+    ax_ixs,
+    ax_lams,
+    catalog,
+    fmf_h,
+    fmf_vb,
+    foc_h,
+    foc_vb,
+    mo,
+    np,
+    pan1_xmax,
+    pan1_xmin,
+    pan2_xmax,
+    pan2_xmin,
+    pan3_xmax,
+    pan3_xmin,
+    pan4_xmax,
+    pan4_xmin,
+    plt,
+    resid_display_check,
+    spec_color_cmap,
+    spec_int,
+):
+    if resid_display_check.value:
+
+        fig_resid = plt.figure(figsize=(10, 6), constrained_layout=True)
+
+        gs_resid = fig_resid.add_gridspec(2, 3)
+
+        ax1_resid = fig_resid.add_subplot(gs_resid[0, :])
+        ax2_resid = fig_resid.add_subplot(gs_resid[1, 0])
+        ax3_resid = fig_resid.add_subplot(gs_resid[1, 1])
+        ax4_resid = fig_resid.add_subplot(gs_resid[1, 2])
+
+        axes_resid = [ax1_resid, ax2_resid, ax3_resid, ax4_resid]
+
+        ix_spec_resid = allstar_so.ix_spectrum.values
+
+        flux_sel_resid = (
+            fmf_h[ix_spec_resid] - foc_h[ix_spec_resid]
+            if catalog.value == "Hunt & Reffert (2024)"
+            else fmf_vb[ix_spec_resid] - foc_vb[ix_spec_resid]
+        )
+
+        n_spectra_resid = np.sum(~np.all(np.isnan(flux_sel_resid), axis=1))
+        color_positions_resid = np.linspace(0, 1, len(allstar_so))
+
+        for spec_i_resid in reversed(range(len(allstar_so))):
+
+            color_resid = spec_color_cmap(color_positions_resid[spec_i_resid])
+
+            for ax_i_resid, (ax_ix_resid, spec_ax_resid, ax_lam_resid) in enumerate(
+                zip(ax_ixs, axes_resid, ax_lams)
+            ):
+
+                spec_ax_resid.plot(
+                    ax_lam_resid,
+                    flux_sel_resid[spec_i_resid][ax_ix_resid],
+                    lw=0.5,
+                    color=color_resid,
+                )
+
+        ax1_resid.set_xlim(pan1_xmin, pan1_xmax)
+        ax2_resid.set_xlim(pan2_xmin, pan2_xmax)
+        ax3_resid.set_xlim(pan3_xmin, pan3_xmax)
+        ax4_resid.set_xlim(pan4_xmin, pan4_xmax)
+
+        # ax1_resid.set_ylim(pan1_ymin, pan1_ymax)
+        # ax2_fmf.set_ylim(pan2_ymin, pan2_ymax)
+        # ax3_fmf.set_ylim(pan3_ymin, pan3_ymax)
+        # ax4_fmf.set_ylim(pan4_ymin, pan4_ymax)
+
+        tit_str_right_resid = (
+            f"{n_spectra_resid:,} residual spectra"
+            if n_spectra_resid > 1
+            else f"{n_spectra_resid} residual spectrum"
+        )
+        ax1_resid.set_title(tit_str_right_resid, loc="right", fontsize=16)
+
+        fig_resid.supylabel("forward-modeled - observed flux", fontsize=14)
+        ax3_resid.set_xlabel(r"$\lambda\ (\AA)$", fontsize=14)
+
+        for spec_ax_resid in axes_resid:
+            spec_ax_resid.grid(True, which="both", alpha=0.4, zorder=-100)
+            spec_ax_resid.tick_params(axis="both", labelsize=12)
+
+        if spec_int.value:
+            specfig_resid = mo.mpl.interactive(fig_resid)
+
+        else:
+            specfig_resid = mo.hstack([fig_resid], justify="center")
+
+    else:
+        specfig_resid = mo.md("")
+
+    specfig_resid
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(spec_df_display_check):
+    spec_df_display_check
+    return
 
 
 @app.cell(hide_code=True)
@@ -904,7 +1551,8 @@ def _(allstar_cols, allstar_so, mo, spec_df_display_check):
 @app.cell(hide_code=True)
 def _(cluster_name_val, mo):
     outfilename = mo.ui.text(
-        label="output file name:", value=f"dr20_boss_{cluster_name_val}"
+        label="output file name:",
+        value=f"dr20_boss_{cluster_name_val.replace(' ', '_').replace(',', '')}",
     )
     return (outfilename,)
 
@@ -932,20 +1580,31 @@ def _(cluster_name, mo, outfilename):
 def _(
     Path,
     allstar_cols,
-    allstar_hmem,
     allstar_select,
+    catalog,
     cluster_name,
     cluster_name_val,
-    continuum,
-    flux,
+    continuum_h,
+    continuum_vb,
+    flux_h,
+    flux_vb,
+    fmf_h,
+    fmf_vb,
     h5py,
-    ivar,
+    hmem,
+    ivar_h,
+    ivar_vb,
     mo,
-    nmf,
+    nmf_h,
+    nmf_vb,
     outfile,
     outfilename,
+    param_cov_h,
+    param_cov_vb,
     save_spectra_button,
     save_subset_option,
+    to_recarray_safe,
+    vbmem,
     wavelength,
 ):
     if save_spectra_button.value:
@@ -957,23 +1616,41 @@ def _(
                 outfile_path = Path(outfile)
                 outfile_path.parent.mkdir(parents=True, exist_ok=True)
 
+                if catalog.value == "Hunt & Reffert (2024)":
+                    flux = flux_h
+                    ivar = ivar_h
+                    nmf = nmf_h
+                    continuum = continuum_h
+                    param_cov = param_cov_h
+                    fmf = fmf_h
+                else:
+                    flux = flux_vb
+                    ivar = ivar_vb
+                    nmf = nmf_vb
+                    continuum = continuum_vb
+                    param_cov = param_cov_vb
+                    fmf = fmf_vb
+
                 with h5py.File(outfile_path, "w") as outfile_f:
+
                     if save_subset_option.value == f"all {cluster_name.value} members":
 
-                        allstar_allmem = allstar_hmem.loc[
-                            allstar_hmem.HR24_cluster_name == cluster_name_val
-                        ]
+                        if catalog.value == "Hunt & Reffert (2024)":
+                            allstar_allmem = hmem.loc[
+                                hmem.HR24_cluster_name == cluster_name_val
+                            ]
+
+                        else:
+                            allstar_allmem = vbmem.loc[
+                                vbmem.VB21_cluster_name == cluster_name_val
+                            ]
+
                         ix_spec_allmem = allstar_allmem.ix_spectrum.values
 
-                        allstar_rec = allstar_allmem.assign(
-                            telescope=lambda df: df["telescope"].astype("S6"),
-                            HR24_cluster_name=lambda df: df["HR24_cluster_name"].astype(
-                                "S32"
-                            ),
-                        ).to_records(index=False)
+                        allstar_rec = to_recarray_safe(allstar_allmem)
 
                         outfile_f.create_dataset(
-                            "/allstar", data=allstar_rec[allstar_cols]
+                            "/members", data=allstar_rec[allstar_cols]
                         )
                         outfile_f.create_dataset("/spectra/wavelength", data=wavelength)
                         outfile_f.create_dataset(
@@ -996,19 +1673,24 @@ def _(
                             data=continuum[ix_spec_allmem],
                             compression="gzip",
                         )
+                        outfile_f.create_dataset(
+                            "/spectra/forward_model_flux",
+                            data=fmf[ix_spec_allmem],
+                            compression="gzip",
+                        )
+                        outfile_f.create_dataset(
+                            "/spectra/param_covariance",
+                            data=param_cov[ix_spec_allmem],
+                            compression="gzip",
+                        )
                         savemessage = mo.md(f"Done saving to `{outfile}` ✅ ")
                     else:
                         if len(allstar_select):
                             ix_spec_select = allstar_select.ix_spectrum.values
-                            allstar_rec = allstar_select.assign(
-                                telescope=lambda df: df["telescope"].astype("S6"),
-                                HR24_cluster_name=lambda df: df[
-                                    "HR24_cluster_name"
-                                ].astype("S32"),
-                            ).to_records(index=False)
+                            allstar_rec = to_recarray_safe(allstar_select)
 
                             outfile_f.create_dataset(
-                                "/allstar", data=allstar_rec[allstar_cols]
+                                "/members", data=allstar_rec[allstar_cols]
                             )
                             outfile_f.create_dataset(
                                 "/spectra/wavelength", data=wavelength
@@ -1033,7 +1715,16 @@ def _(
                                 data=continuum[ix_spec_select],
                                 compression="gzip",
                             )
-
+                            outfile_f.create_dataset(
+                                "/spectra/forward_model_flux",
+                                data=fmf[ix_spec_select],
+                                compression="gzip",
+                            )
+                            outfile_f.create_dataset(
+                                "/spectra/param_covariance",
+                                data=param_cov[ix_spec_select],
+                                compression="gzip",
+                            )
                             savemessage = mo.md(f"Done saving to `{outfile}` ✅ ")
 
                         else:
@@ -1070,22 +1761,30 @@ def _(
         ],
         gap=2,
     )
-    return (download_md,)
+
+    mo.accordion(
+        {
+            '<h2 style="text-align: left; font-weight: bold;"> Download the spectra </h2>': download_md,
+        }
+    )
+    return
 
 
 @app.cell(hide_code=True)
-def _(mo, outfilename):
+def _(column_md, mo, outfilename):
     access_md_filename = mo.md(f"""`{outfilename.value}.h5` is structured """)
 
     access_md_body1 = mo.md(
         r"""
-    * `/allstar`
+    * `/members`
     * `/spectra`
         * `/flux  (n, 4648)  float32`
         * `/continuum  (n, 4648)  float32`
         * `/ivar  (n, 4648)  float32`
         * `/nmf_rectified_model_flux  (n, 4648)  float32`
         * `/wavelength (4648,) float32`
+        * `/forward_model_flux (n, 4648) float64`
+        * `/param_covariance (n, 4, 4) float64`
 
     Access the spectra and `mwmAllStar-0.8.1.fits` information with
     """
@@ -1095,12 +1794,14 @@ def _(mo, outfilename):
     ```python
     with h5py.File(f"/home/jovyan/home/data/{outfilename.value}.h5", "r") as spectra_f:
 
-        allstar_loaded = spectra_f["/allstar"][()]
+        members = spectra_f["/members"][()]
         flux_loaded = spectra_f["/spectra/flux"][:]
         ivar_loaded = spectra_f["/spectra/ivar"][:]
         nmf_loaded = spectra_f["/spectra/nmf_rectified_model_flux"][:]
         cont_loaded = spectra_f["/spectra/continuum"][:]
         wavelength_loaded = spectra_f["/spectra/wavelength"][()]
+        forward_model_flux_loaded = spectra_f["/spectra/forward_model_flux"][:]
+        param_covariance_loaded = spectra_f["/spectra/param_covariance"][:]
     ```
     """
     )
@@ -1109,26 +1810,26 @@ def _(mo, outfilename):
         r"""
     Code snippets can be pasted right into this notebook after saving `dr20_boss_spectra.h5` if you wish 🤠
 
-    `/allstar` comes with 
-
-    `['sdss_id', 'gaia_dr3_source_id', 'ra', 'dec', 'l', 'b', 'plx', 'e_plx', 'pmra', 'e_pmra', 'pmde', 'e_pmde', 'gaia_v_rad', 'gaia_e_v_rad', 'g_mag', 'bp_mag', 'rp_mag', 'j_mag', 'h_mag', 'k_mag', 'w1_mag', 'w2_mag', 'telescope', 'n_good_visits', 'v_rad', 'e_v_rad', 'std_v_rad', 'median_e_v_rad', 'xcsao_teff', 'xcsao_e_teff', 'xcsao_logg', 'xcsao_e_logg', 'xcsao_fe_h', 'xcsao_e_fe_h', 'xcsao_meanrxc', 'snr', 'zwarning_flags', 'nmf_rchi2', 'nmf_flags', 'HR24_cluster_name', 'HR24_mem_prob', 'RUWE', 'teff', 'e_teff', 'logg', 'e_logg', 'fe_h', 'e_fe_h', 'result_flags', 'flag_warn', 'flag_bad', 'bn_v_r', 'e_bn_v_r']`
-
-
-    Tip 💡:  `/allstar` can immediately be turned into a `pd.DataFrame()`
+    `/members` comes with
+        """
+    )
+    access_md_body3 = mo.md(
+        r"""
+    Tip 💡:  `/members` can immediately be turned into a `pd.DataFrame()`
 
     ```python
-    allstar_df = pd.DataFrame(allstar_loaded)
+    members_df = pd.DataFrame(members)
     ```
 
     Grab a subset of spectra with
 
     ```python
     # Examples
-    # cond = (allstar_loaded['sdss_id']==111751124)
-    # cond = (allstar_loaded['g_mag'] < 15)
-    # cond = ((allstar_loaded['g_mag'] < 15) & (allstar_loaded['dec'] > -30))
+    # cond = (members['sdss_id']==12345)
+    # cond = (members['g_mag'] < 15)
+    # cond = ((members['g_mag'] < 15) & (members['dec'] > -30))
 
-    cond = (allstar_loaded['telescope']==b'lco25m')
+    cond = (members['telescope']==b'lco25m')
     ix_stars = np.where(cond)[0]
 
     flux_stars = flux_loaded[ix_stars, :]
@@ -1139,19 +1840,23 @@ def _(mo, outfilename):
     )
 
     access_md = mo.vstack(
-        [access_md_filename, access_md_body1, access_md_code, access_md_body2], gap=0
+        [
+            access_md_filename,
+            access_md_body1,
+            access_md_code,
+            mo.vstack([access_md_body2, column_md, access_md_body3], gap=2),
+        ],
+        gap=0,
     )
     return (access_md,)
 
 
 @app.cell(hide_code=True)
-def _(access_md, download_md, mo):
+def _(access_md, mo):
     mo.accordion(
         {
-            '<h2 style="text-align: left; font-weight: bold;"> Download the spectra </h2>': download_md,
             '<h2 style="text-align: left; font-weight: bold;"> Access the spectra </h2>': access_md,
         },
-        multiple=True,
     )
     return
 
