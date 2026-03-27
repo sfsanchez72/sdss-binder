@@ -105,8 +105,7 @@ def _():
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     <div style="display: flex; align-items: center; justify-content: center; position: relative; height: 80px; width: 100%;">
         <img src="https://www.sdss.org/wp-content/uploads/2022/09/sdss-new-logo-72dpi.png"
              style="height: 72px; position: absolute; right: 0;">
@@ -118,8 +117,7 @@ def _(mo):
     </div>
 
     </div>
-    """
-    )
+    """)
     return
 
 
@@ -127,7 +125,8 @@ def _(mo):
 def _(decode_hdf5_bytes, h5py, mo, np, pd):
     with mo.status.spinner("Loading spectra...") as load_spinner:
 
-        with h5py.File("data/sandbox/dr20_boss_clusters_CLAM.h5", "r") as f:
+        # with h5py.File("data/sandbox/dr20_boss_clusters_CLAM.h5", "r") as f:
+        with h5py.File("/home/jovyan/home/data/dr20_boss_clusters_CLAM.h5", "r") as f:
 
             hclu = f["/clusters_HR24"][()]
             hmem = f["/members_HR24"][()]
@@ -653,13 +652,11 @@ def _(catalog, hclu, hclu_display_cols, vbclu, vbclu_display_cols):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     <h2 style="text-align: left; font-weight: bold;"> Plot and Select </h2>
 
     To view the spectra, make a box selection by clicking and dragging on the plot, or hold `shift` while doing so to make a lasso selection.
-    """
-    )
+    """)
     return
 
 
@@ -724,7 +721,6 @@ def _(catalog, mo):
         gap=2,
     )
     return (
-        clu_name_val,
         cluster_name,
         colorbar,
         cuts,
@@ -767,11 +763,11 @@ def _(colorbar, mo):
 
 
 @app.cell(hide_code=True)
-def _(catalog, clu_name_val, cluster_name):
+def _(catalog, cluster_name):
     if catalog.value == "Hunt & Reffert (2024)":
         cluster_name_val = cluster_name.value.replace(" ", "_").strip()
     else:
-        cluster_name_val = clu_name_val
+        cluster_name_val = cluster_name.value
     return (cluster_name_val,)
 
 
@@ -1497,10 +1493,10 @@ def _(
         ax3_resid.set_xlim(pan3_xmin, pan3_xmax)
         ax4_resid.set_xlim(pan4_xmin, pan4_xmax)
 
-        ax1_resid.set_ylim(-5, 5)
-        ax2_resid.set_ylim(-5, 5)
-        ax3_resid.set_ylim(-5, 5)
-        ax4_resid.set_ylim(-5, 5)
+        ax1_resid.set_ylim(-5,5)
+        ax2_resid.set_ylim(-5,5)
+        ax3_resid.set_ylim(-5,5)
+        ax4_resid.set_ylim(-5,5)
 
         tit_str_right_resid = (
             f"{n_spectra_resid:,} residual spectra"
@@ -1860,11 +1856,9 @@ def _(access_md, mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     Please send questions/issues/feedback about this notebook to Kayvon Sharifi (ksharifi1@gsu.edu)
-    """
-    )
+    """)
     return
 
 
