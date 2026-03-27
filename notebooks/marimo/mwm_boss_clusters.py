@@ -125,8 +125,7 @@ def _(mo):
 def _(decode_hdf5_bytes, h5py, mo, np, pd):
     with mo.status.spinner("Loading spectra...") as load_spinner:
 
-        # with h5py.File("data/sandbox/dr20_boss_clusters_CLAM.h5", "r") as f:
-        with h5py.File("/home/jovyan/home/data/dr20_boss_clusters_CLAM.h5", "r") as f:
+        with h5py.File("data/sandbox/dr20_boss_clusters_CLAM.h5", "r") as f:
 
             hclu = f["/clusters_HR24"][()]
             hmem = f["/members_HR24"][()]
