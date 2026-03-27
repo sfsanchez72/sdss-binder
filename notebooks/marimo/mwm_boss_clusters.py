@@ -1,4 +1,4 @@
-import marimo
+f-2import marimo
 
 __generated_with = "0.21.1"
 app = marimo.App(width="full")
@@ -1480,11 +1480,6 @@ def _(
         ax2_resid.set_xlim(pan2_xmin, pan2_xmax)
         ax3_resid.set_xlim(pan3_xmin, pan3_xmax)
         ax4_resid.set_xlim(pan4_xmin, pan4_xmax)
-
-        ax1_resid.set_ylim(-2, 2)
-        ax2_resid.set_ylim(-2, 2)
-        ax3_resid.set_ylim(-2, 2)
-        ax4_resid.set_ylim(-2, 2)
 
         tit_str_right_resid = (
             f"{n_spectra_resid:,} residual spectra"
