@@ -1492,10 +1492,10 @@ def _(
         ax3_resid.set_xlim(pan3_xmin, pan3_xmax)
         ax4_resid.set_xlim(pan4_xmin, pan4_xmax)
 
-        ax1_resid.set_ylim(-5,5)
-        ax2_resid.set_ylim(-5,5)
-        ax3_resid.set_ylim(-5,5)
-        ax4_resid.set_ylim(-5,5)
+        ax1_resid.set_ylim(-2,2)
+        ax2_resid.set_ylim(-2,2)
+        ax3_resid.set_ylim(-2,2)
+        ax4_resid.set_ylim(-2,2)
 
         tit_str_right_resid = (
             f"{n_spectra_resid:,} residual spectra"
