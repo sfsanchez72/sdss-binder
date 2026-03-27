@@ -214,7 +214,6 @@ def _(catalog, mo):
         )
 
     wspectra
-
     return
 
 
@@ -1310,7 +1309,7 @@ def _(allstar_select, mo):
     return fmf_display_check, resid_display_check, spec_df_display_check
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(fmf_display_check):
     fmf_display_check
     return
@@ -1420,7 +1419,6 @@ def _(
         specfig_fmf = mo.md("")
 
     specfig_fmf
-
     return
 
 
@@ -1499,10 +1497,10 @@ def _(
         ax3_resid.set_xlim(pan3_xmin, pan3_xmax)
         ax4_resid.set_xlim(pan4_xmin, pan4_xmax)
 
-        # ax1_resid.set_ylim(pan1_ymin, pan1_ymax)
-        # ax2_fmf.set_ylim(pan2_ymin, pan2_ymax)
-        # ax3_fmf.set_ylim(pan3_ymin, pan3_ymax)
-        # ax4_fmf.set_ylim(pan4_ymin, pan4_ymax)
+        ax1_resid.set_ylim(-5, 5)
+        ax2_resid.set_ylim(-5, 5)
+        ax3_resid.set_ylim(-5, 5)
+        ax4_resid.set_ylim(-5, 5)
 
         tit_str_right_resid = (
             f"{n_spectra_resid:,} residual spectra"
@@ -1528,7 +1526,6 @@ def _(
         specfig_resid = mo.md("")
 
     specfig_resid
-
     return
 
 
