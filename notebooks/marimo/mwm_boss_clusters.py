@@ -157,38 +157,28 @@ def _(decode_hdf5_bytes, h5py, mo, np, pd):
     hmem["ix_spectrum"] = np.arange(len(hmem))
     vbmem["ix_spectrum"] = np.arange(len(vbmem))
 
-    bool_like_cols = []
+    bool_like_cols = [
+        col for col in hmem.columns
+        if hmem[col].dtype == "object" and
+        set(
+            hmem[col]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .unique()
+        ).issubset({"true", "false", ""})
+    ]
 
-    for col in hmem.columns:
-        if hmem[col].dtype == "object":
-            vals = (
-                hmem[col]
-                .dropna()
+    for col in bool_like_cols:
+        for df in (hmem, vbmem):
+            df[col] = (
+                df[col]
                 .astype(str)
                 .str.strip()
                 .str.lower()
-                .unique()
+                .map({"true": True, "false": False, "": False})
             )
-            if set(vals).issubset({"true", "false"}):
-                bool_like_cols.append(col)
-
-    for boolcol in bool_like_cols:
-    
-        hmem[boolcol] = (
-            hmem[boolcol]
-            .astype(str)
-            .str.strip()
-            .str.lower()
-            .map({"true": True, "false": False})
-        )
-        vbmem[boolcol] = (
-            vbmem[boolcol]
-            .astype(str)
-            .str.strip()
-            .str.lower()
-            .map({"true": True, "false": False})
-        )
-    
     return (
         continuum_h,
         continuum_vb,
