@@ -60,6 +60,29 @@ def _():
                 df[col] = df[col].apply(
                     lambda x: x.decode("utf-8") if isinstance(x, bytes) else x
                 )
+
+        bool_like_cols = [
+            col for col in df.columns
+            if df[col].dtype == "object" and
+            set(
+                df[col]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                .unique()
+            ).issubset({"true", "false", ""})
+        ]
+
+        for col in bool_like_cols:
+            df[col] = (
+                df[col]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                .map({"true": True, "false": False, "": False})
+            )
+
         return df
 
     def to_recarray_safe(df):
@@ -156,29 +179,6 @@ def _(decode_hdf5_bytes, h5py, mo, np, pd):
 
     hmem["ix_spectrum"] = np.arange(len(hmem))
     vbmem["ix_spectrum"] = np.arange(len(vbmem))
-
-    bool_like_cols = [
-        col for col in hmem.columns
-        if hmem[col].dtype == "object" and
-        set(
-            hmem[col]
-            .dropna()
-            .astype(str)
-            .str.strip()
-            .str.lower()
-            .unique()
-        ).issubset({"true", "false", ""})
-    ]
-
-    for col in bool_like_cols:
-        for df in (hmem, vbmem):
-            df[col] = (
-                df[col]
-                .astype(str)
-                .str.strip()
-                .str.lower()
-                .map({"true": True, "false": False, "": False})
-            )
     return (
         continuum_h,
         continuum_vb,
