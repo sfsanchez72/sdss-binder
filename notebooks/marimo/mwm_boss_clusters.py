@@ -71,16 +71,16 @@ def _():
                 .str.strip()
                 .str.lower()
                 .unique()
-            ).issubset({"true", "false", ""})
+            ).issubset({"true", "false"})
         ]
 
         for col in bool_like_cols:
-            df[col] = (
-                df[col]
-                .astype(str)
-                .str.strip()
-                .str.lower()
-                .map({"true": True, "false": False, "": False})
+            df[col] = df[col].map(
+                lambda x: (
+                    {"true": True, "false": False}.get(x.strip().lower())
+                    if isinstance(x, str)
+                    else x
+                )
             )
 
         return df
@@ -95,20 +95,18 @@ def _():
         rec_dtype = []
         for col in df_new.columns:
             vals = df_new[col]
-            # Check type
             if np.issubdtype(vals.dtype, np.number):
-                # numeric: keep dtype
                 rec_dtype.append((col, vals.dtype))
             else:
-                # treat as text-like: fillna, decode bytes, convert to str
+
                 s = vals.fillna("").apply(
                     lambda x: x.decode("utf-8") if isinstance(x, bytes) else str(x)
                 )
-                # determine max length + padding
+
                 n = s.str.len().max() + 4
                 rec_dtype.append((col, f"S{n}"))
                 df_new[col] = s.astype(f"S{n}")
-        # convert to recarray
+
         return df_new.to_records(index=False)
 
     return (
