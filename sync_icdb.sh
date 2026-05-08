@@ -13,6 +13,7 @@ TMPDIR=$(mktemp -d)
 REPO_URL="https://github.com/andycasey/sdss-binder.git"
 EXCLUDE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/exclude.txt"
 INCLUDE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/include.txt"
+STALE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/stale-accounts.txt"
 
 log "Temporary folder: $TMPDIR"
 
@@ -36,6 +37,12 @@ if [ -f "$INCLUDE_FILE" ]; then
 else
     touch include.txt
     log "No include.txt found; proceeding without forced inclusions."
+fi
+
+if [ -f "$STALE_FILE" ]; then
+    awk 'NF' "$STALE_FILE" >> exclude.txt
+    N_STALE=$(grep -c '[^[:space:]]' "$STALE_FILE" || true)
+    log "Appended $N_STALE stale accounts from stale-accounts.txt to exclusions"
 fi
 
 AUTH_RESPONSE=$(curl https://soji.sdss.utah.edu/collaboration/api/login \
