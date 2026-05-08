@@ -21,7 +21,6 @@ econgiu@eso.org
 eschlafly@gmail.com
 evelynjohnston.astro@gmail.com
 gguiglion@aip.de
-hanswalter.rix@gmail.com
 iminchev1@gmail.com
 j.otto@tcu.edu
 jacqueline.sanchezcal@gmail.com
@@ -32,7 +31,6 @@ jonathan.bird.io@gmail.com
 jordan.raddick@gmail.com
 jserna@astro.unam.mx
 keith.inight@gmail.com
-liam.dubay@gmail.com
 lorena.hernandez.astro@gmail.com
 lu.3234@osu.edu
 mmartinez@astro-udec.cl
@@ -49,7 +47,6 @@ stringfellow.guy@gmail.com
 svillanova@astro-udec.cl
 william.r.zhang@smail.nju.edu.cn
 wnbrandt@gmail.com
-wudi0971@gmail.com
 yanrenbin@gmail.com
 ziqi.yuan@geol.lu.se
 zixian.wang@utah.edu
