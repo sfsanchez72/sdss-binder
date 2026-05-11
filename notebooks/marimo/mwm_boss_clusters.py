@@ -1334,7 +1334,6 @@ def _(allstar_cols, catalog, mo, spec_df_display_check):
                 "bn_flag_bad",
                 "bn_v_r",
                 "bn_e_v_r",
-
             ]
         else:
             col_sel_val = [
@@ -1411,7 +1410,7 @@ def _(cluster_name, mo, outfilename):
     )
 
     download_md_body = mo.md(
-        "After saving, click the file tree icon in the top left of this page and download your file."
+        "After saving, click the file tree icon in the top left of this page to navigate to your file and download."
     )
     return download_md_body, outfile, save_spectra_button, save_subset_option
 
@@ -1666,6 +1665,11 @@ def _(mo):
     mo.md(r"""
     __Please send questions/issues/requests in the #binderhub slack channel or to__ ksharifi1@gsu.edu
     """)
+    return
+
+
+@app.cell
+def _():
     return
 
 
