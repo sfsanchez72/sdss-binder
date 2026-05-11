@@ -1307,6 +1307,7 @@ def _(allstar_cols, catalog, mo, spec_df_display_check):
             col_sel_val = [
                 "sdss_id",
                 "telescope",
+                "snr",
                 "HR24_mem_prob",
                 "ra",
                 "dec",
@@ -1333,11 +1334,13 @@ def _(allstar_cols, catalog, mo, spec_df_display_check):
                 "bn_flag_bad",
                 "bn_v_r",
                 "bn_e_v_r",
+
             ]
         else:
             col_sel_val = [
                 "sdss_id",
                 "telescope",
+                "snr",
                 "VB21_mem_prob",
                 "ra",
                 "dec",
